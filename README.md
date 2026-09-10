@@ -62,18 +62,18 @@ Die Integration liefert ein interaktives **Lovelace-Übersichtswidget** mit Sort
 
 ## 📊 Dashboard Widget (`subscription-manager-card`)
 
-Die Integration bringt eine interaktive Dashboard-Karte direkt mit. Damit Home Assistant die Karte lädt, trägst du sie einmalig als Dashboard-Ressource ein:
+Die passende Dashboard-Karte wird bequem als **HACS Frontend-Plugin** bereitgestellt:
 
-### 1. Karte als Ressource registrieren (einmalig)
+### 1. Karte über HACS installieren (Empfohlen)
 
-1. Gehe in Home Assistant zu **Einstellungen -> Dashboards**.
-2. Klicke oben rechts auf das **Dreipunkt-Menü** und wähle **Ressourcen** aus.
-3. Klicke unten rechts auf **+ Ressource hinzufügen**.
-4. Fülle die Felder aus:
-   - **URL**: `/subscription_manager/subscription-manager-card.js`
-   - **Ressourcentyp**: `JavaScript-Modul`
-5. Klicke auf **Erstellen**.
-6. Lade das Dashboard im Browser einmalig mit **`Strg + F5`** (bzw. `Cmd + Shift + R` auf Mac) neu.
+1. Öffne **HACS** in Home Assistant -> **Frontend** (oder Dashboards).
+2. Klicke oben rechts auf das Dreipunkt-Menü -> **Benutzerdefinierte Repositories**.
+3. Trage ein:
+   - **Repository**: `https://github.com/JarydX/ha-subscriptionmanager-card`
+   - **Typ**: `Lovelace` (oder Dashboard)
+4. Suche nach **Subscription Manager Card** und klicke auf **Herunterladen**.
+5. HACS registriert die Karte automatisch unter Dashboard -> Ressourcen.
+
 
 ---
 
