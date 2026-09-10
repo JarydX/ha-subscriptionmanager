@@ -1,4 +1,4 @@
-"""Sensor platform for Subscription Manager."""
+"""Sensor platform for Subscription Manager (Hub-Model)."""
 from __future__ import annotations
 
 from datetime import date
@@ -8,11 +8,11 @@ from typing import Any
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
-    SensorEntityDescription,
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -27,7 +27,7 @@ from .const import (
     PAYMENT_PAYPAL,
     PAYMENT_SEPA,
 )
-from .coordinator import SubscriptionCoordinator
+from .coordinator import SubscriptionHubCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,76 +47,101 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the sensor platform."""
-    coordinator: SubscriptionCoordinator = hass.data[DOMAIN]["coordinators"][entry.entry_id]
+    """Set up the sensor platform from a central hub config entry."""
+    coordinator: SubscriptionHubCoordinator = hass.data[DOMAIN]["coordinator"]
+    subs = coordinator.data.get("subscriptions", {})
 
-    entities: list[SensorEntity] = [
-        SubscriptionNextPaymentSensor(coordinator, entry),
-        SubscriptionDaysUntilRenewalSensor(coordinator, entry),
-        SubscriptionCostSensor(coordinator, entry),
-        SubscriptionMonthlyCostSensor(coordinator, entry),
-        SubscriptionPaymentMethodSensor(coordinator, entry),
-    ]
+    # Clean up any removed subscriptions from Entity Registry
+    ent_reg = er.async_get(hass)
+    existing_entries = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
+    active_sub_ids = set(subs.keys())
 
-    # Add cancellation sensors if configured
-    if coordinator.data.get("cancellation_deadline") is not None:
+    for reg_entry in existing_entries:
+        if reg_entry.domain != "sensor":
+            continue
+        uid = reg_entry.unique_id
+        if uid.startswith(f"{entry.entry_id}_global_"):
+            continue
+        # Format: {entry_id}_{sub_id}_{key}
+        prefix = f"{entry.entry_id}_"
+        if uid.startswith(prefix):
+            remainder = uid[len(prefix) :]
+            found_active = any(remainder.startswith(f"{sid}_") for sid in active_sub_ids)
+            if not found_active:
+                _LOGGER.info("Removing stale subscription sensor: %s", reg_entry.entity_id)
+                ent_reg.async_remove(reg_entry.entity_id)
+
+    entities: list[SensorEntity] = []
+
+    # Subscription-specific sensors
+    for sub_id, metrics in subs.items():
         entities.extend(
             [
-                SubscriptionCancellationDeadlineSensor(coordinator, entry),
-                SubscriptionDaysUntilCancellationSensor(coordinator, entry),
+                SubscriptionNextPaymentSensor(coordinator, entry, sub_id),
+                SubscriptionDaysUntilRenewalSensor(coordinator, entry, sub_id),
+                SubscriptionCostSensor(coordinator, entry, sub_id),
+                SubscriptionMonthlyCostSensor(coordinator, entry, sub_id),
+                SubscriptionPaymentMethodSensor(coordinator, entry, sub_id),
             ]
         )
+        if metrics.get("cancellation_deadline") is not None:
+            entities.extend(
+                [
+                    SubscriptionCancellationDeadlineSensor(coordinator, entry, sub_id),
+                    SubscriptionDaysUntilCancellationSensor(coordinator, entry, sub_id),
+                ]
+            )
 
-    # Initialize global summary sensors once
-    if not hass.data[DOMAIN].get("summary_entities_registered"):
-        hass.data[DOMAIN]["summary_entities_registered"] = True
-        summary_sensors = [
-            SubscriptionsTotalMonthlyCostSensor(hass),
-            SubscriptionsTotalYearlyCostSensor(hass),
-            SubscriptionsActiveCountSensor(hass),
-            SubscriptionsSummarySensor(hass),
+    # Global summary sensors
+    entities.extend(
+        [
+            SubscriptionsTotalMonthlyCostSensor(coordinator, entry),
+            SubscriptionsTotalYearlyCostSensor(coordinator, entry),
+            SubscriptionsActiveCountSensor(coordinator, entry),
+            SubscriptionsSummarySensor(coordinator, entry),
         ]
-        hass.data[DOMAIN]["summary_entities"] = summary_sensors
-        async_add_entities(summary_sensors)
+    )
 
     async_add_entities(entities)
 
-    # Update summary sensors whenever coordinator finishes refreshing
-    def _refresh_summary() -> None:
-        for s in hass.data[DOMAIN].get("summary_entities", []):
-            if s.hass is not None:
-                s.async_write_ha_state()
 
-    coordinator.async_add_listener(_refresh_summary)
-
-
-class SubscriptionBaseSensor(CoordinatorEntity[SubscriptionCoordinator], SensorEntity):
-    """Base class for subscription sensors."""
+class SubscriptionBaseSensor(
+    CoordinatorEntity[SubscriptionHubCoordinator], SensorEntity
+):
+    """Base class for sensors belonging to an individual subscription device."""
 
     _attr_has_entity_name = True
 
     def __init__(
         self,
-        coordinator: SubscriptionCoordinator,
+        coordinator: SubscriptionHubCoordinator,
         entry: ConfigEntry,
+        sub_id: str,
         key: str,
     ) -> None:
-        """Initialize the sensor."""
+        """Initialize."""
         super().__init__(coordinator)
         self.entry = entry
+        self.sub_id = sub_id
         self._key = key
-        self._attr_unique_id = f"{entry.entry_id}_{key}"
+        self._attr_unique_id = f"{entry.entry_id}_{sub_id}_{key}"
+
+    @property
+    def _sub_metrics(self) -> dict[str, Any]:
+        """Return metrics for this subscription."""
+        return self.coordinator.data.get("subscriptions", {}).get(self.sub_id, {})
 
     @property
     def device_info(self) -> DeviceInfo:
-        """Return device info for the subscription."""
-        metrics = self.coordinator.data
+        """Return device info for the subscription device."""
+        metrics = self._sub_metrics
         return DeviceInfo(
-            identifiers={(DOMAIN, self.entry.entry_id)},
-            name=metrics.get("name", self.entry.title),
+            identifiers={(DOMAIN, f"{self.entry.entry_id}_{self.sub_id}")},
+            name=metrics.get("name", "Subscription"),
             manufacturer="Subscription Manager",
             model=f"{metrics.get('billing_interval', '').capitalize()} Subscription",
             configuration_url=metrics.get("website") or None,
+            via_device=(DOMAIN, self.entry.entry_id),
         )
 
 
@@ -126,51 +151,53 @@ class SubscriptionNextPaymentSensor(SubscriptionBaseSensor):
     _attr_translation_key = "next_payment"
     _attr_device_class = SensorDeviceClass.DATE
 
-    def __init__(self, coordinator: SubscriptionCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "next_payment")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry, sub_id: str
+    ) -> None:
+        super().__init__(coordinator, entry, sub_id, "next_payment")
 
     @property
     def native_value(self) -> date | None:
-        """Return the next payment date."""
-        return self.coordinator.data.get("next_payment")
+        return self._sub_metrics.get("next_payment")
 
 
 class SubscriptionDaysUntilRenewalSensor(SubscriptionBaseSensor):
-    """Sensor for days remaining until renewal."""
+    """Sensor for remaining days until renewal."""
 
     _attr_translation_key = "days_until_renewal"
     _attr_native_unit_of_measurement = "d"
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:calendar-clock"
 
-    def __init__(self, coordinator: SubscriptionCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "days_until_renewal")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry, sub_id: str
+    ) -> None:
+        super().__init__(coordinator, entry, sub_id, "days_until_renewal")
 
     @property
     def native_value(self) -> int | None:
-        """Return the remaining days."""
-        return self.coordinator.data.get("days_until_renewal")
+        return self._sub_metrics.get("days_until_renewal")
 
 
 class SubscriptionCostSensor(SubscriptionBaseSensor):
-    """Sensor for subscription cost per billing interval."""
+    """Sensor for cost per billing cycle."""
 
     _attr_translation_key = "cost"
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
 
-    def __init__(self, coordinator: SubscriptionCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "cost")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry, sub_id: str
+    ) -> None:
+        super().__init__(coordinator, entry, sub_id, "cost")
 
     @property
     def native_value(self) -> float | None:
-        """Return cost amount."""
-        return self.coordinator.data.get("cost")
+        return self._sub_metrics.get("cost")
 
     @property
     def native_unit_of_measurement(self) -> str:
-        """Return currency unit."""
-        return self.coordinator.data.get("currency", "EUR")
+        return self._sub_metrics.get("currency", "EUR")
 
 
 class SubscriptionMonthlyCostSensor(SubscriptionBaseSensor):
@@ -181,18 +208,18 @@ class SubscriptionMonthlyCostSensor(SubscriptionBaseSensor):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_icon = "mdi:cash-multiple"
 
-    def __init__(self, coordinator: SubscriptionCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "monthly_cost")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry, sub_id: str
+    ) -> None:
+        super().__init__(coordinator, entry, sub_id, "monthly_cost")
 
     @property
     def native_value(self) -> float | None:
-        """Return normalized monthly cost."""
-        return self.coordinator.data.get("monthly_cost")
+        return self._sub_metrics.get("monthly_cost")
 
     @property
     def native_unit_of_measurement(self) -> str:
-        """Return currency unit."""
-        return self.coordinator.data.get("currency", "EUR")
+        return self._sub_metrics.get("currency", "EUR")
 
 
 class SubscriptionPaymentMethodSensor(SubscriptionBaseSensor):
@@ -200,17 +227,17 @@ class SubscriptionPaymentMethodSensor(SubscriptionBaseSensor):
 
     _attr_translation_key = "payment_method"
 
-    def __init__(self, coordinator: SubscriptionCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "payment_method")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry, sub_id: str
+    ) -> None:
+        super().__init__(coordinator, entry, sub_id, "payment_method")
 
     @property
     def native_value(self) -> str | None:
-        """Return payment method."""
-        return self.coordinator.data.get("payment_method")
+        return self._sub_metrics.get("payment_method")
 
     @property
     def icon(self) -> str:
-        """Return icon depending on payment method."""
         method = str(self.native_value or "")
         return PAYMENT_ICONS.get(method, "mdi:credit-card")
 
@@ -222,67 +249,66 @@ class SubscriptionCancellationDeadlineSensor(SubscriptionBaseSensor):
     _attr_device_class = SensorDeviceClass.DATE
     _attr_icon = "mdi:calendar-alert"
 
-    def __init__(self, coordinator: SubscriptionCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "cancellation_deadline")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry, sub_id: str
+    ) -> None:
+        super().__init__(coordinator, entry, sub_id, "cancellation_deadline")
 
     @property
     def native_value(self) -> date | None:
-        """Return cancellation deadline."""
-        return self.coordinator.data.get("cancellation_deadline")
+        return self._sub_metrics.get("cancellation_deadline")
 
 
 class SubscriptionDaysUntilCancellationSensor(SubscriptionBaseSensor):
-    """Sensor for days remaining until cancellation deadline."""
+    """Sensor for days until cancellation deadline."""
 
     _attr_translation_key = "days_until_cancellation"
     _attr_native_unit_of_measurement = "d"
     _attr_icon = "mdi:timer-alert-outline"
     _attr_state_class = SensorStateClass.MEASUREMENT
 
-    def __init__(self, coordinator: SubscriptionCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "days_until_cancellation")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry, sub_id: str
+    ) -> None:
+        super().__init__(coordinator, entry, sub_id, "days_until_cancellation")
 
     @property
     def native_value(self) -> int | None:
-        """Return remaining days."""
-        return self.coordinator.data.get("days_until_cancellation")
+        return self._sub_metrics.get("days_until_cancellation")
 
 
 # =========================================================================
 # Summary / Aggregated Sensors
 # =========================================================================
 
-class SubscriptionsSummaryBaseSensor(SensorEntity):
+class SubscriptionsSummaryBaseSensor(
+    CoordinatorEntity[SubscriptionHubCoordinator], SensorEntity
+):
     """Base class for summary sensors."""
 
     _attr_has_entity_name = True
 
-    def __init__(self, hass: HomeAssistant, key: str) -> None:
+    def __init__(
+        self,
+        coordinator: SubscriptionHubCoordinator,
+        entry: ConfigEntry,
+        key: str,
+    ) -> None:
         """Initialize."""
-        self._hass = hass
+        super().__init__(coordinator)
+        self.entry = entry
         self._key = key
-        self._attr_unique_id = f"{DOMAIN}_global_{key}"
+        self._attr_unique_id = f"{entry.entry_id}_global_{key}"
 
     @property
     def device_info(self) -> DeviceInfo:
-        """Return device info for global summary."""
+        """Return central hub device info."""
         return DeviceInfo(
-            identifiers={(DOMAIN, "global_summary")},
+            identifiers={(DOMAIN, self.entry.entry_id)},
             name="Subscriptions Overview",
             manufacturer="Subscription Manager",
-            entry_type=None,
+            model="Hub",
         )
-
-    def _get_all_metrics(self) -> list[dict[str, Any]]:
-        """Collect metrics from all active coordinators."""
-        coordinators: dict[str, SubscriptionCoordinator] = (
-            self._hass.data.get(DOMAIN, {}).get("coordinators", {})
-        )
-        return [
-            coord.data
-            for coord in coordinators.values()
-            if coord.data is not None
-        ]
 
 
 class SubscriptionsTotalMonthlyCostSensor(SubscriptionsSummaryBaseSensor):
@@ -293,23 +319,18 @@ class SubscriptionsTotalMonthlyCostSensor(SubscriptionsSummaryBaseSensor):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_icon = "mdi:chart-line"
 
-    def __init__(self, hass: HomeAssistant) -> None:
-        super().__init__(hass, "total_monthly_cost")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry
+    ) -> None:
+        super().__init__(coordinator, entry, "total_monthly_cost")
 
     @property
     def native_value(self) -> float:
-        """Calculate total monthly cost."""
-        metrics_list = self._get_all_metrics()
-        total = sum(float(m.get("monthly_cost", 0.0)) for m in metrics_list)
-        return round(total, 2)
+        return self.coordinator.data.get("total_monthly_cost", 0.0)
 
     @property
     def native_unit_of_measurement(self) -> str:
-        """Return currency unit (EUR default)."""
-        metrics_list = self._get_all_metrics()
-        if metrics_list:
-            return metrics_list[0].get("currency", "EUR")
-        return "EUR"
+        return self.coordinator.data.get("currency", "EUR")
 
 
 class SubscriptionsTotalYearlyCostSensor(SubscriptionsSummaryBaseSensor):
@@ -320,23 +341,18 @@ class SubscriptionsTotalYearlyCostSensor(SubscriptionsSummaryBaseSensor):
     _attr_state_class = SensorStateClass.TOTAL
     _attr_icon = "mdi:chart-areaspline"
 
-    def __init__(self, hass: HomeAssistant) -> None:
-        super().__init__(hass, "total_yearly_cost")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry
+    ) -> None:
+        super().__init__(coordinator, entry, "total_yearly_cost")
 
     @property
     def native_value(self) -> float:
-        """Calculate total yearly cost."""
-        metrics_list = self._get_all_metrics()
-        total = sum(float(m.get("yearly_cost", 0.0)) for m in metrics_list)
-        return round(total, 2)
+        return self.coordinator.data.get("total_yearly_cost", 0.0)
 
     @property
     def native_unit_of_measurement(self) -> str:
-        """Return currency unit (EUR default)."""
-        metrics_list = self._get_all_metrics()
-        if metrics_list:
-            return metrics_list[0].get("currency", "EUR")
-        return "EUR"
+        return self.coordinator.data.get("currency", "EUR")
 
 
 class SubscriptionsActiveCountSensor(SubscriptionsSummaryBaseSensor):
@@ -346,13 +362,14 @@ class SubscriptionsActiveCountSensor(SubscriptionsSummaryBaseSensor):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_icon = "mdi:counter"
 
-    def __init__(self, hass: HomeAssistant) -> None:
-        super().__init__(hass, "active_count")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry
+    ) -> None:
+        super().__init__(coordinator, entry, "active_count")
 
     @property
     def native_value(self) -> int:
-        """Return number of subscriptions."""
-        return len(self._get_all_metrics())
+        return self.coordinator.data.get("active_count", 0)
 
 
 class SubscriptionsSummarySensor(SubscriptionsSummaryBaseSensor):
@@ -361,38 +378,32 @@ class SubscriptionsSummarySensor(SubscriptionsSummaryBaseSensor):
     _attr_translation_key = "summary"
     _attr_icon = "mdi:view-dashboard-outline"
 
-    def __init__(self, hass: HomeAssistant) -> None:
-        super().__init__(hass, "summary")
+    def __init__(
+        self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry
+    ) -> None:
+        super().__init__(coordinator, entry, "summary")
 
     @property
     def native_value(self) -> int:
-        """Return count of subscriptions."""
-        return len(self._get_all_metrics())
+        return self.coordinator.data.get("active_count", 0)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return detailed subscription list for widget rendering."""
-        coordinators: dict[str, SubscriptionCoordinator] = (
-            self._hass.data.get(DOMAIN, {}).get("coordinators", {})
-        )
+        subs = self.coordinator.data.get("subscriptions", {})
         items = []
-        for entry_id, coord in coordinators.items():
-            if coord.data is None:
-                continue
-            data = dict(coord.data)
-            data["entry_id"] = entry_id
+        for sub_id, metrics in subs.items():
+            data = dict(metrics)
+            data["sub_id"] = sub_id
             if isinstance(data.get("next_payment"), date):
                 data["next_payment"] = data["next_payment"].isoformat()
             if isinstance(data.get("cancellation_deadline"), date):
                 data["cancellation_deadline"] = data["cancellation_deadline"].isoformat()
             items.append(data)
 
-        total_monthly = round(sum(float(i.get("monthly_cost", 0.0)) for i in items), 2)
-        total_yearly = round(sum(float(i.get("yearly_cost", 0.0)) for i in items), 2)
-
         return {
             "subscriptions": items,
-            "total_monthly_cost": total_monthly,
-            "total_yearly_cost": total_yearly,
+            "total_monthly_cost": self.coordinator.data.get("total_monthly_cost", 0.0),
+            "total_yearly_cost": self.coordinator.data.get("total_yearly_cost", 0.0),
             "count": len(items),
         }

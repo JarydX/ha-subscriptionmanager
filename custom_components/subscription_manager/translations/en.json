@@ -2,6 +2,26 @@
   "config": {
     "step": {
       "user": {
+        "title": "Set up Subscription Manager",
+        "description": "Do you want to enable Subscription Manager? Once set up, you can manage all your subscriptions via the 'Configure' button on the integration card."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Subscription Manager is already configured. You can manage subscriptions by clicking 'Configure' on the integration card."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Subscription Management",
+        "description": "Choose an action:",
+        "menu_options": {
+          "add": "➕ Add new subscription",
+          "edit_select": "✏️ Edit existing subscription",
+          "delete": "🗑️ Delete subscription"
+        }
+      },
+      "add": {
         "title": "Add Subscription",
         "description": "Track a new recurring subscription or contract.",
         "data": {
@@ -19,18 +39,19 @@
           "notes": "Notes / Contract ID (optional)",
           "website": "Website / Cancel URL (optional)"
         }
-      }
-    },
-    "error": {
-      "empty_name": "Please enter a name for the subscription."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
+      },
+      "edit_select": {
+        "title": "Select Subscription",
+        "description": "Choose the subscription you want to edit.",
+        "data": {
+          "sub_id": "Subscription"
+        }
+      },
+      "edit": {
         "title": "Edit Subscription",
         "description": "Update subscription terms and configuration.",
         "data": {
+          "name": "Subscription Name",
           "cost": "Cost",
           "currency": "Currency",
           "billing_interval": "Billing Interval",
@@ -44,7 +65,17 @@
           "notes": "Notes / Contract ID (optional)",
           "website": "Website / Cancel URL (optional)"
         }
+      },
+      "delete": {
+        "title": "Delete Subscription",
+        "description": "Choose the subscription you want to remove. Its associated sensors will be completely removed.",
+        "data": {
+          "sub_id": "Subscription to delete"
+        }
       }
+    },
+    "error": {
+      "empty_name": "Please enter a name for the subscription."
     }
   },
   "selector": {

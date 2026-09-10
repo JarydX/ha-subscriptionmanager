@@ -49,17 +49,14 @@ Die Integration liefert ein interaktives **Lovelace-Übersichtswidget** mit Sort
 
 1. Gehe in Home Assistant zu **Einstellungen -> Geräte & Dienste**.
 2. Klicke auf **Integration hinzufügen** und wähle **Subscription Manager** aus.
-3. Fülle das Dialogfeld aus:
-   - **Name**: z. B. `Netflix`, `Gym / Fitness First`, `Spotify`
-   - **Kosten & Währung**: z. B. `17.99` `EUR`
-   - **Abrechnungsintervall**: Monatlich, Jährlich, Quartalsweise, Wöchentlich etc.
-   - **Startdatum / Nächste Abrechnung**: Tag der Abbuchung
-   - **Zahlungsmethode**: PayPal, Kreditkarte, SEPA etc.
-   - **Kategorie**: Streaming, Software, Fitness, Haushalt etc.
-   - *(Optional)* **Kündigungsfrist (Tage)**: z. B. `30` für 30 Tage vor Verlängerung
-   - *(Optional)* **Vertragsende**: Falls eine Mindestlaufzeit existiert
-   - *(Optional)* **Vorwarnzeit (Tage)**: Standardmäßig `7` Tage vorher
-4. Wiederhole den Schritt für weitere Abonnements. Jedes Abo erhält ein eigenes Gerät mit allen Sensoren!
+3. Klicke auf **Absenden**, um die Integration als zentralen Hub einzurichten.
+   - **Wichtig**: Die Integration landet sauber unter **Integrationen** und **nicht** bei den Helfern!
+4. Klicke nun auf der Integrations-Kachel auf **Konfigurieren**:
+   - ➕ **Abonnement hinzufügen**: Neues Abo anlegen (Name, Kosten, Abrechnungsintervall, Startdatum, Zahlungsmethode, optionale Kündigungsfrist).
+   - ✏️ **Abonnement bearbeiten**: Konditionen bestehender Abos anpassen.
+   - 🗑️ **Abonnement löschen**: Abos entfernen (alle zugehörigen Sensoren werden automatisch entfernt).
+5. Jedes angelegte Abo erhält automatisch ein eigenes virtuelles Gerät mit allen Sensoren in Home Assistant.
+
 
 ---
 

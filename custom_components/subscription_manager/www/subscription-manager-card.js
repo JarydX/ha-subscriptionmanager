@@ -399,7 +399,7 @@ class SubscriptionManagerCard extends HTMLElement {
           ${subscriptions.length === 0 ? `
             <div class="empty-state">
               Keine Abonnements vorhanden.<br>
-              Füge neue Einträge über <i>Einstellungen -> Geräte & Dienste -> Subscription Manager</i> hinzu.
+              Füge neue Abos über <i>Einstellungen -> Geräte & Dienste -> Subscription Manager -> Konfigurieren</i> hinzu.
             </div>
           ` : subscriptions.map((sub) => {
             const daysRenewal = sub.days_until_renewal;

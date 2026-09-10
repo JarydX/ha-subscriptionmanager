@@ -1,5 +1,29 @@
-"""Unit tests for subscription calculations."""
+import sys
 import unittest
+from unittest.mock import MagicMock
+
+# Shim homeassistant modules if not installed in the current environment
+for mod in [
+    "homeassistant",
+    "homeassistant.components",
+    "homeassistant.components.http",
+    "homeassistant.components.sensor",
+    "homeassistant.components.binary_sensor",
+    "homeassistant.config_entries",
+    "homeassistant.core",
+    "homeassistant.data_entry_flow",
+    "homeassistant.helpers",
+    "homeassistant.helpers.device_registry",
+    "homeassistant.helpers.entity_platform",
+    "homeassistant.helpers.entity_registry",
+    "homeassistant.helpers.selector",
+    "homeassistant.helpers.typing",
+    "homeassistant.helpers.update_coordinator",
+    "voluptuous",
+]:
+    if mod not in sys.modules:
+        sys.modules[mod] = MagicMock()
+
 from datetime import date
 
 from custom_components.subscription_manager.calculations import (

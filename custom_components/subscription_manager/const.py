@@ -20,6 +20,8 @@ CONF_CONTRACT_END_DATE: Final = "contract_end_date"
 CONF_ALERT_DAYS: Final = "alert_days"
 CONF_NOTES: Final = "notes"
 CONF_WEBSITE: Final = "website"
+CONF_SUBSCRIPTIONS: Final = "subscriptions"
+CONF_SUB_ID: Final = "sub_id"
 
 # Defaults
 DEFAULT_CURRENCY: Final = "EUR"
