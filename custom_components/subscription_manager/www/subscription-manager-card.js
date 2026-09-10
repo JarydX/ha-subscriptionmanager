@@ -19,9 +19,14 @@ class SubscriptionManagerCard extends HTMLElement {
     this._lastSerialized = '';
   }
 
+  static async getConfigElement() {
+    return document.createElement('subscription-manager-card-editor');
+  }
+
   static getStubConfig() {
     return {
       title: 'Abonnements',
+      entities: [],
       show_summary: true,
       show_sorting: true,
     };
@@ -34,6 +39,7 @@ class SubscriptionManagerCard extends HTMLElement {
     this._config = {
       title: config.title !== undefined ? config.title : 'Abonnements',
       entity: config.entity,
+      entities: config.entities || [],
       show_summary: config.show_summary !== false,
       show_sorting: config.show_sorting !== false,
       ...config,
@@ -563,7 +569,101 @@ class SubscriptionManagerCard extends HTMLElement {
   }
 }
 
-// Safe element registration to avoid crashes on repeated re-loads
+class SubscriptionManagerCardEditor extends HTMLElement {
+  setConfig(config) {
+    this._config = config || {};
+    this._render();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+  }
+
+  _render() {
+    if (!this.shadowRoot) {
+      this.attachShadow({ mode: 'open' });
+    }
+    this.shadowRoot.innerHTML = `
+      <style>
+        .card-config {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          padding: 8px 0;
+          font-family: var(--paper-font-body1_-_font-family, Roboto, sans-serif);
+        }
+        .config-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 4px 0;
+        }
+        .config-label {
+          font-size: 0.95rem;
+          color: var(--primary-text-color);
+        }
+        ha-textfield {
+          width: 100%;
+        }
+      </style>
+      <div class="card-config">
+        <ha-textfield
+          label="Kartentitel"
+          .value="${this._config.title || 'Abonnements'}"
+          config-value="title"
+        ></ha-textfield>
+        <div class="config-row">
+          <span class="config-label">Kosten-Zusammenfassung oben anzeigen</span>
+          <ha-switch
+            .checked="${this._config.show_summary !== false}"
+            config-value="show_summary"
+          ></ha-switch>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Sortier-Leiste anzeigen</span>
+          <ha-switch
+            .checked="${this._config.show_sorting !== false}"
+            config-value="show_sorting"
+          ></ha-switch>
+        </div>
+      </div>
+    `;
+
+    const titleField = this.shadowRoot.querySelector('ha-textfield');
+    if (titleField) {
+      titleField.addEventListener('input', (e) => {
+        this._valueChanged('title', e.target.value);
+      });
+    }
+
+    this.shadowRoot.querySelectorAll('ha-switch').forEach((sw) => {
+      sw.addEventListener('change', (e) => {
+        const key = e.target.getAttribute('config-value');
+        this._valueChanged(key, e.target.checked);
+      });
+    });
+  }
+
+  _valueChanged(key, value) {
+    if (!this._config) return;
+    this._config = {
+      ...this._config,
+      [key]: value,
+    };
+    const event = new CustomEvent('config-changed', {
+      detail: { config: this._config },
+      bubbles: true,
+      composed: true,
+    });
+    this.dispatchEvent(event);
+  }
+}
+
+// Safe element registrations
+if (!customElements.get('subscription-manager-card-editor')) {
+  customElements.define('subscription-manager-card-editor', SubscriptionManagerCardEditor);
+}
+
 if (!customElements.get('subscription-manager-card')) {
   customElements.define('subscription-manager-card', SubscriptionManagerCard);
 }
@@ -577,3 +677,4 @@ if (!window.customCards.some((c) => c.type === 'subscription-manager-card')) {
     preview: true,
   });
 }
+
