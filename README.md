@@ -1,7 +1,7 @@
 # 💳 Home Assistant Subscription Manager
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/default)
-[![Validate Integration](https://github.com/jan/ha-subscriptionmanager/actions/workflows/validate.yaml/badge.svg)](https://github.com/jan/ha-subscriptionmanager/actions/workflows/validate.yaml)
+[![Validate Integration](https://github.com/JarydX/ha-subscriptionmanager/actions/workflows/validate.yaml/badge.svg)](https://github.com/JarydX/ha-subscriptionmanager/actions/workflows/validate.yaml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Subscription Manager** ist eine modulare Custom Integration für [Home Assistant](https://www.home-assistant.io/), mit der du all deine regelmäßigen Abonnements, Mitgliedschaften und Verträge (Streaming, Software, Fitness, Versicherungen, Internet etc.) direkt in Home Assistant erfassen, überwachen und budgetieren kannst.
@@ -32,7 +32,7 @@ Die Integration liefert ein interaktives **Lovelace-Übersichtswidget** mit Sort
 1. Öffne **HACS** in deinem Home Assistant.
 2. Klicke oben rechts auf das Dreipunkt-Menü -> **Benutzerdefinierte Repositories**.
 3. Füge dieses Repository hinzu:
-   - **Repository**: `https://github.com/jan/ha-subscriptionmanager` (oder dein GitHub Repo)
+   - **Repository**: `https://github.com/JarydX/ha-subscriptionmanager`
    - **Typ**: `Integration`
 4. Suche nach **Subscription Manager** und klicke auf **Herunterladen**.
 5. Starte Home Assistant neu.

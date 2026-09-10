@@ -1,11 +1,11 @@
 {
   "domain": "subscription_manager",
   "name": "Subscription Manager",
-  "codeowners": ["@jan"],
+  "codeowners": ["@JarydX"],
   "config_flow": true,
-  "documentation": "https://github.com/jan/ha-subscriptionmanager",
+  "documentation": "https://github.com/JarydX/ha-subscriptionmanager",
   "integration_type": "helper",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/jan/ha-subscriptionmanager/issues",
+  "issue_tracker": "https://github.com/JarydX/ha-subscriptionmanager/issues",
   "version": "1.0.0"
 }
