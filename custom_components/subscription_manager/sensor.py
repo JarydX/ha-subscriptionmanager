@@ -400,6 +400,10 @@ class SubscriptionsSummarySensor(SubscriptionsSummaryBaseSensor):
                 data["next_payment"] = data["next_payment"].isoformat()
             if isinstance(data.get("cancellation_deadline"), date):
                 data["cancellation_deadline"] = data["cancellation_deadline"].isoformat()
+            if isinstance(data.get("end_date"), date):
+                data["end_date"] = data["end_date"].isoformat()
+            if isinstance(data.get("contract_end_date"), date):
+                data["contract_end_date"] = data["contract_end_date"].isoformat()
             items.append(data)
 
         return {

@@ -407,11 +407,37 @@ class SubscriptionManagerCard extends HTMLElement {
           background: rgba(244, 67, 54, 0.18);
           color: var(--error-color, #c62828);
         }
+        .badge-cancelled {
+          background: rgba(244, 67, 54, 0.12);
+          color: #d32f2f;
+          font-weight: 600;
+          border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+        .badge-cancelled-date {
+          background: rgba(255, 152, 0, 0.15);
+          color: #e65100;
+        }
+        .badge-expired {
+          background: rgba(158, 158, 158, 0.2);
+          color: #757575;
+        }
         .badge-method {
           background: var(--card-background-color, rgba(125, 125, 125, 0.1));
           color: var(--secondary-text-color, #555);
           border: 1px solid var(--divider-color, rgba(125, 125, 125, 0.2));
         }
+        .sub-item.sub-cancelled {
+          opacity: 0.92;
+          border-left: 3px solid #ff9800;
+        }
+        .sub-item.sub-expired {
+          opacity: 0.65;
+          border-left: 3px solid #9e9e9e;
+        }
+        .cost-cancelled {
+          color: var(--secondary-text-color, #757575);
+        }
+
         .sub-cost-box {
           text-align: right;
           min-width: 85px;
@@ -493,41 +519,77 @@ class SubscriptionManagerCard extends HTMLElement {
           `
               : subscriptions
                   .map((sub) => {
+                    const isCancelled = sub.is_cancelled || sub.auto_renew === false;
+                    const isExpired = sub.is_expired;
                     const daysRenewal = sub.days_until_renewal;
                     const daysNotice = sub.days_until_cancellation;
+                    const daysEnd = sub.days_until_end;
+                    const endDate = sub.end_date || sub.contract_end_date;
 
-                    let renewalBadgeClass = 'badge-green';
-                    if (daysRenewal !== null && daysRenewal !== undefined) {
-                      if (daysRenewal <= 3) renewalBadgeClass = 'badge-red';
-                      else if (daysRenewal <= 7) renewalBadgeClass = 'badge-yellow';
+                    let statusBadge = '';
+                    let timingInfo = '';
+                    let intervalText = sub.billing_interval || 'monatlich';
+
+                    if (isExpired) {
+                      statusBadge = '<span class="badge badge-expired">Beendet</span>';
+                      timingInfo = `<span class="badge badge-expired">Abgelaufen am: ${this._formatDate(endDate)}</span>`;
+                      intervalText = 'abgelaufen';
+                    } else if (isCancelled) {
+                      statusBadge = '<span class="badge badge-cancelled">Gekündigt</span>';
+                      const endStr = endDate ? this._formatDate(endDate) : 'unbekannt';
+                      const daysStr = daysEnd !== null && daysEnd !== undefined ? `(${daysEnd}d)` : '';
+                      timingInfo = `
+                        <span class="badge badge-cancelled-date">
+                          Endet am: ${endStr} ${daysStr}
+                        </span>
+                      `;
+                      if (sub.next_payment && endDate && sub.next_payment < endDate) {
+                        timingInfo += `
+                          <span class="badge badge-method">
+                            Letzter Zahltag: ${this._formatDate(sub.next_payment)}
+                          </span>
+                        `;
+                      }
+                      intervalText = 'bis Vertragsende';
+                    } else {
+                      let renewalBadgeClass = 'badge-green';
+                      if (daysRenewal !== null && daysRenewal !== undefined) {
+                        if (daysRenewal <= 3) renewalBadgeClass = 'badge-red';
+                        else if (daysRenewal <= 7) renewalBadgeClass = 'badge-yellow';
+                      }
+
+                      timingInfo = `
+                        <span class="badge ${renewalBadgeClass}">
+                          Zahltag: ${this._formatDate(sub.next_payment)} 
+                          ${daysRenewal !== null && daysRenewal !== undefined ? `(${daysRenewal}d)` : ''}
+                        </span>
+                        ${
+                          daysNotice !== null && daysNotice !== undefined
+                            ? `
+                          <span class="badge ${daysNotice <= 7 ? 'badge-red' : 'badge-yellow'}">
+                            Kündigen bis: ${this._formatDate(sub.cancellation_deadline)} (${daysNotice}d)
+                          </span>
+                        `
+                            : ''
+                        }
+                      `;
                     }
 
                     return `
-              <div class="sub-item ${sub.alert_active ? 'alert-active' : ''}" data-entity="${sub.entity_id || ''}">
+              <div class="sub-item ${sub.alert_active ? 'alert-active' : ''} ${isExpired ? 'sub-expired' : (isCancelled ? 'sub-cancelled' : '')}" data-entity="${sub.entity_id || ''}">
                 <div class="sub-main">
                   <div class="sub-name">
                     <span>${sub.name}</span>
+                    ${statusBadge}
                     <span class="badge badge-method">${sub.payment_method || 'Zahlung'}</span>
                   </div>
                   <div class="sub-info">
-                    <span class="badge ${renewalBadgeClass}">
-                      Zahltag: ${this._formatDate(sub.next_payment)} 
-                      ${daysRenewal !== null && daysRenewal !== undefined ? `(${daysRenewal}d)` : ''}
-                    </span>
-                    ${
-                      daysNotice !== null && daysNotice !== undefined
-                        ? `
-                      <span class="badge ${daysNotice <= 7 ? 'badge-red' : 'badge-yellow'}">
-                        Kündigen bis: ${this._formatDate(sub.cancellation_deadline)} (${daysNotice}d)
-                      </span>
-                    `
-                        : ''
-                    }
+                    ${timingInfo}
                   </div>
                 </div>
                 <div class="sub-cost-box">
-                  <div class="sub-cost">${this._formatCurrency(sub.cost, sub.currency)}</div>
-                  <div class="sub-interval">${sub.billing_interval || 'monatlich'}</div>
+                  <div class="sub-cost ${isCancelled || isExpired ? 'cost-cancelled' : ''}">${this._formatCurrency(sub.cost, sub.currency)}</div>
+                  <div class="sub-interval">${intervalText}</div>
                 </div>
               </div>
             `;
@@ -535,6 +597,7 @@ class SubscriptionManagerCard extends HTMLElement {
                   .join('')
           }
         </div>
+
       </ha-card>
     `;
 

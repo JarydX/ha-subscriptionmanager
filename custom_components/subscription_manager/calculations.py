@@ -153,25 +153,51 @@ def get_subscription_metrics(
     notice_period_days = int(config.get("notice_period_days") or 0)
     alert_days = int(config.get("alert_days") or 7)
 
+    auto_renew = bool(config.get("auto_renew", True))
+    is_cancelled = not auto_renew or (contract_end_date is not None and contract_end_date <= today)
+
     next_payment = calculate_next_payment_date(start_date, interval, today)
     days_until_renewal = (next_payment - today).days
 
-    cancellation_deadline = calculate_cancellation_deadline(
-        next_payment, notice_period_days, contract_end_date, today
+    # Effective end date
+    end_date: date | None = contract_end_date
+    if end_date is None and is_cancelled:
+        end_date = next_payment
+
+    days_until_end = (end_date - today).days if end_date else None
+    is_expired = end_date is not None and end_date < today
+
+    cancellation_deadline = (
+        calculate_cancellation_deadline(
+            next_payment, notice_period_days, contract_end_date, today
+        )
+        if not is_cancelled
+        else None
     )
     days_until_cancellation = (
         (cancellation_deadline - today).days if cancellation_deadline else None
     )
 
-    monthly_cost = calculate_monthly_cost(cost, interval)
-    yearly_cost = calculate_yearly_cost(cost, interval)
-
-    # Determine alert state
-    is_renewal_due = days_until_renewal <= alert_days
-    is_cancellation_due = (
-        days_until_cancellation is not None and days_until_cancellation <= alert_days
-    )
-    alert_active = is_renewal_due or is_cancellation_due
+    if is_expired:
+        monthly_cost = 0.0
+        yearly_cost = 0.0
+        alert_active = False
+        is_renewal_due = False
+        is_cancellation_due = False
+    elif is_cancelled:
+        monthly_cost = calculate_monthly_cost(cost, interval)
+        yearly_cost = calculate_yearly_cost(cost, interval)
+        is_renewal_due = False
+        is_cancellation_due = False
+        alert_active = days_until_end is not None and 0 <= days_until_end <= alert_days
+    else:
+        monthly_cost = calculate_monthly_cost(cost, interval)
+        yearly_cost = calculate_yearly_cost(cost, interval)
+        is_renewal_due = days_until_renewal <= alert_days
+        is_cancellation_due = (
+            days_until_cancellation is not None and days_until_cancellation <= alert_days
+        )
+        alert_active = is_renewal_due or is_cancellation_due
 
     return {
         "next_payment": next_payment,
@@ -183,6 +209,12 @@ def get_subscription_metrics(
         "alert_active": alert_active,
         "is_renewal_due": is_renewal_due,
         "is_cancellation_due": is_cancellation_due,
+        "auto_renew": auto_renew,
+        "is_cancelled": is_cancelled,
+        "contract_end_date": contract_end_date,
+        "end_date": end_date,
+        "days_until_end": days_until_end,
+        "is_expired": is_expired,
         "cost": cost,
         "currency": currency,
         "billing_interval": interval,
@@ -192,3 +224,4 @@ def get_subscription_metrics(
         "notes": config.get("notes", ""),
         "website": config.get("website", ""),
     }
+
