@@ -376,6 +376,7 @@ class SubscriptionsSummarySensor(SubscriptionsSummaryBaseSensor):
     """Sensor containing full JSON payload of all subscriptions for the frontend widget."""
 
     _attr_translation_key = "summary"
+    _attr_suggested_object_id = "subscriptions_summary"
     _attr_icon = "mdi:view-dashboard-outline"
 
     def __init__(
