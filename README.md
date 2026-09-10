@@ -62,11 +62,24 @@ Die Integration liefert ein interaktives **Lovelace-Übersichtswidget** mit Sort
 
 ## 📊 Dashboard Widget (`subscription-manager-card`)
 
-Die Karte wird automatisch von der Integration im Lovelace-Frontend bereitgestellt.
+Die Integration bringt eine interaktive Dashboard-Karte direkt mit. Damit Home Assistant die Karte lädt, trägst du sie einmalig als Dashboard-Ressource ein:
 
-### Karte zum Dashboard hinzufügen:
+### 1. Karte als Ressource registrieren (einmalig)
 
-Füge eine neue Karte zu deinem Dashboard hinzu (im Code-Editor):
+1. Gehe in Home Assistant zu **Einstellungen -> Dashboards**.
+2. Klicke oben rechts auf das **Dreipunkt-Menü** und wähle **Ressourcen** aus.
+3. Klicke unten rechts auf **+ Ressource hinzufügen**.
+4. Fülle die Felder aus:
+   - **URL**: `/subscription_manager/subscription-manager-card.js`
+   - **Ressourcentyp**: `JavaScript-Modul`
+5. Klicke auf **Erstellen**.
+6. Lade das Dashboard im Browser einmalig mit **`Strg + F5`** (bzw. `Cmd + Shift + R` auf Mac) neu.
+
+---
+
+### 2. Karte zum Dashboard hinzufügen
+
+Klicke im Dashboard auf **+ Karte hinzufügen**, suche nach **Subscription Manager Card** (oder wechsle in den Code-Editor):
 
 ```yaml
 type: custom:subscription-manager-card
@@ -74,6 +87,7 @@ title: Meine Abonnements
 show_summary: true
 show_sorting: true
 ```
+
 
 ### Konfigurations-Optionen:
 
