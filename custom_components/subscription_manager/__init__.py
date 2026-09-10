@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -54,7 +55,7 @@ async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 
 async def _async_register_frontend_resources(hass: HomeAssistant) -> None:
-    """Register the Lovelace card static path."""
+    """Register the Lovelace card static path and inject into frontend."""
     if hass.data.get(DOMAIN, {}).get("static_registered"):
         return
 
@@ -69,11 +70,15 @@ async def _async_register_frontend_resources(hass: HomeAssistant) -> None:
             )
         elif hasattr(hass.http, "register_static_path"):
             hass.http.register_static_path(URL_BASE, str(www_path), cache_headers=False)
+
+        # Auto-inject Lovelace card script so users don't need manual resource configuration
+        card_url = f"{URL_BASE}/{CARD_FILENAME}"
+        add_extra_js_url(hass, card_url)
+
         hass.data.setdefault(DOMAIN, {})["static_registered"] = True
         _LOGGER.info(
-            "Registered Subscription Manager frontend card at %s/%s",
-            URL_BASE,
-            CARD_FILENAME,
+            "Registered Subscription Manager frontend card at %s",
+            card_url,
         )
     except Exception as err:
         _LOGGER.warning("Could not register static path for Lovelace card: %s", err)

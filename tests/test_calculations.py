@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 for mod in [
     "homeassistant",
     "homeassistant.components",
+    "homeassistant.components.frontend",
     "homeassistant.components.http",
     "homeassistant.components.sensor",
     "homeassistant.components.binary_sensor",
