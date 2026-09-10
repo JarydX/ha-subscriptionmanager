@@ -1,0 +1,103 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Abonnement hinzufügen",
+        "description": "Erfasse ein neues Abonnement oder einen regelmäßigen Vertrag.",
+        "data": {
+          "name": "Name des Abos (z. B. Netflix)",
+          "cost": "Kosten",
+          "currency": "Währung (z. B. EUR, USD)",
+          "billing_interval": "Abrechnungsintervall",
+          "start_date": "Startdatum / Nächste Abrechnung",
+          "payment_method": "Zahlungsmethode",
+          "category": "Kategorie",
+          "alert_days": "Erinnerung (Tage vorher)",
+          "notice_period_days": "Kündigungsfrist (Tage vor Verlängerung, optional)",
+          "contract_end_date": "Vertragsende / Mindestlaufzeit (optional)",
+          "auto_renew": "Automatische Verlängerung",
+          "notes": "Notizen / Kundennummer (optional)",
+          "website": "Webseite / Kündigungslink (optional)"
+        }
+      }
+    },
+    "error": {
+      "empty_name": "Bitte gib einen Namen für das Abo ein."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Abonnement bearbeiten",
+        "description": "Passe die Konditionen des Abonnements an.",
+        "data": {
+          "cost": "Kosten",
+          "currency": "Währung",
+          "billing_interval": "Abrechnungsintervall",
+          "start_date": "Startdatum / Abrechnungstag",
+          "payment_method": "Zahlungsmethode",
+          "category": "Kategorie",
+          "alert_days": "Erinnerung (Tage vorher)",
+          "notice_period_days": "Kündigungsfrist (Tage vor Verlängerung, optional)",
+          "contract_end_date": "Vertragsende / Mindestlaufzeit (optional)",
+          "auto_renew": "Automatische Verlängerung",
+          "notes": "Notizen / Kundennummer (optional)",
+          "website": "Webseite / Kündigungslink (optional)"
+        }
+      }
+    }
+  },
+  "selector": {
+    "billing_interval": {
+      "options": {
+        "weekly": "Wöchentlich",
+        "monthly": "Monatlich",
+        "quarterly": "Vierteljährlich (Quartal)",
+        "half_yearly": "Halbjährlich",
+        "yearly": "Jährlich"
+      }
+    },
+    "payment_method": {
+      "options": {
+        "paypal": "PayPal",
+        "credit_card": "Kreditkarte",
+        "sepa": "SEPA-Lastschrift",
+        "apple_pay": "Apple Pay",
+        "google_pay": "Google Pay",
+        "bank_transfer": "Banküberweisung",
+        "invoice": "Rechnung",
+        "other": "Sonstige"
+      }
+    },
+    "category": {
+      "options": {
+        "streaming": "Streaming & Unterhaltung",
+        "software": "Software & Cloud",
+        "fitness": "Fitness & Sport",
+        "insurance": "Versicherung & Finanzen",
+        "household": "Haushalt & Energie",
+        "gaming": "Gaming",
+        "news": "Nachrichten & Magazine",
+        "other": "Sonstige"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_payment": { "name": "Nächste Abrechnung" },
+      "days_until_renewal": { "name": "Tage bis Abrechnung" },
+      "cost": { "name": "Kosten" },
+      "monthly_cost": { "name": "Monatliche Kosten" },
+      "payment_method": { "name": "Zahlungsmethode" },
+      "cancellation_deadline": { "name": "Kündigungsfrist-Stichtag" },
+      "days_until_cancellation": { "name": "Tage bis Kündigungsfrist" },
+      "total_monthly_cost": { "name": "Gesamtkosten monatlich" },
+      "total_yearly_cost": { "name": "Gesamtkosten jährlich" },
+      "active_count": { "name": "Aktive Abonnements" },
+      "summary": { "name": "Abo-Übersicht" }
+    },
+    "binary_sensor": {
+      "renewal_due": { "name": "Ablauf / Kündigung anstehend" }
+    }
+  }
+}

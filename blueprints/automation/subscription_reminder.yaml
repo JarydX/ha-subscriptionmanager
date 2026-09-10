@@ -1,0 +1,38 @@
+blueprint:
+  name: Subscription Manager - Abo Erinnerung & Fristen-Warnung
+  description: >
+    Sendet automatisch Benachrichtigungen vor dem nächsten Abrechnungstag oder vor
+    Ablauf einer Kündigungsfrist für deine Abonnements.
+  domain: automation
+  input:
+    notify_device:
+      name: Benachrichtigungs-Gerät
+      description: Das Smartphone/Gerät, das die Benachrichtigung empfangen soll (Home Assistant Mobile App).
+      selector:
+        device:
+          integration: mobile_app
+
+mode: queued
+max: 10
+
+trigger:
+  - platform: event
+    event_type: subscription_manager_reminder
+
+action:
+  - domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: >
+      Abo-Erinnerung: {{ trigger.event.data.name }}
+    message: >
+      {% if trigger.event.data.is_cancellation_due and trigger.event.data.days_until_cancellation is not none %}
+        Achtung: Die Kündigungsfrist für "{{ trigger.event.data.name }}" endet in {{ trigger.event.data.days_until_cancellation }} Tagen (am {{ trigger.event.data.cancellation_deadline }}).
+      {% else %}
+        Die nächste Abbuchung für "{{ trigger.event.data.name }}" in Höhe von {{ trigger.event.data.cost }} {{ trigger.event.data.currency }} steht in {{ trigger.event.data.days_until_renewal }} Tagen an (Zahlungsart: {{ trigger.event.data.payment_method }}).
+      {% endif %}
+    data:
+      tag: "sub_reminder_{{ trigger.event.data.entry_id }}"
+      group: "SubscriptionManager"
+      icon: "mdi:calendar-clock"
+      clickAction: "/config/integrations/integration/subscription_manager"

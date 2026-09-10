@@ -1,0 +1,103 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Subscription",
+        "description": "Track a new recurring subscription or contract.",
+        "data": {
+          "name": "Subscription Name (e.g. Netflix)",
+          "cost": "Cost",
+          "currency": "Currency (e.g. EUR, USD)",
+          "billing_interval": "Billing Interval",
+          "start_date": "Start Date / Next Payment",
+          "payment_method": "Payment Method",
+          "category": "Category",
+          "alert_days": "Alert threshold (days prior)",
+          "notice_period_days": "Notice period (days prior to renewal, optional)",
+          "contract_end_date": "Contract end date / minimum term (optional)",
+          "auto_renew": "Auto renew",
+          "notes": "Notes / Contract ID (optional)",
+          "website": "Website / Cancel URL (optional)"
+        }
+      }
+    },
+    "error": {
+      "empty_name": "Please enter a name for the subscription."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Edit Subscription",
+        "description": "Update subscription terms and configuration.",
+        "data": {
+          "cost": "Cost",
+          "currency": "Currency",
+          "billing_interval": "Billing Interval",
+          "start_date": "Start Date / Next Payment",
+          "payment_method": "Payment Method",
+          "category": "Category",
+          "alert_days": "Alert threshold (days prior)",
+          "notice_period_days": "Notice period (days prior to renewal, optional)",
+          "contract_end_date": "Contract end date / minimum term (optional)",
+          "auto_renew": "Auto renew",
+          "notes": "Notes / Contract ID (optional)",
+          "website": "Website / Cancel URL (optional)"
+        }
+      }
+    }
+  },
+  "selector": {
+    "billing_interval": {
+      "options": {
+        "weekly": "Weekly",
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "half_yearly": "Semi-Annually",
+        "yearly": "Yearly"
+      }
+    },
+    "payment_method": {
+      "options": {
+        "paypal": "PayPal",
+        "credit_card": "Credit Card",
+        "sepa": "SEPA Direct Debit",
+        "apple_pay": "Apple Pay",
+        "google_pay": "Google Pay",
+        "bank_transfer": "Bank Transfer",
+        "invoice": "Invoice",
+        "other": "Other"
+      }
+    },
+    "category": {
+      "options": {
+        "streaming": "Streaming & Entertainment",
+        "software": "Software & Cloud",
+        "fitness": "Fitness & Sports",
+        "insurance": "Insurance & Finance",
+        "household": "Household & Utilities",
+        "gaming": "Gaming",
+        "news": "News & Magazines",
+        "other": "Other"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_payment": { "name": "Next Payment" },
+      "days_until_renewal": { "name": "Days Until Renewal" },
+      "cost": { "name": "Cost" },
+      "monthly_cost": { "name": "Monthly Cost" },
+      "payment_method": { "name": "Payment Method" },
+      "cancellation_deadline": { "name": "Cancellation Deadline" },
+      "days_until_cancellation": { "name": "Days Until Cancellation" },
+      "total_monthly_cost": { "name": "Total Monthly Cost" },
+      "total_yearly_cost": { "name": "Total Yearly Cost" },
+      "active_count": { "name": "Active Subscriptions" },
+      "summary": { "name": "Subscriptions Summary" }
+    },
+    "binary_sensor": {
+      "renewal_due": { "name": "Renewal / Cancellation Due" }
+    }
+  }
+}
