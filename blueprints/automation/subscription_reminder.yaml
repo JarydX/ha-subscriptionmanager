@@ -24,15 +24,29 @@ action:
     type: notify
     device_id: !input notify_device
     title: >
-      Abo-Erinnerung: {{ trigger.event.data.name }}
-    message: >
-      {% if trigger.event.data.is_cancellation_due and trigger.event.data.days_until_cancellation is not none %}
-        Achtung: Die Kündigungsfrist für "{{ trigger.event.data.name }}" endet in {{ trigger.event.data.days_until_cancellation }} Tagen (am {{ trigger.event.data.cancellation_deadline }}).
+      {% if trigger is defined and 'event' in trigger and 'data' in trigger.event %}
+        Abo-Erinnerung: {{ trigger.event.data.name }}
       {% else %}
-        Die nächste Abbuchung für "{{ trigger.event.data.name }}" in Höhe von {{ trigger.event.data.cost }} {{ trigger.event.data.currency }} steht in {{ trigger.event.data.days_until_renewal }} Tagen an (Zahlungsart: {{ trigger.event.data.payment_method }}).
+        Abo-Erinnerung (Test)
+      {% endif %}
+    message: >
+      {% if trigger is defined and 'event' in trigger and 'data' in trigger.event %}
+        {% set data = trigger.event.data %}
+        {% if data.is_cancellation_due and data.days_until_cancellation is not none %}
+          Achtung: Die Kündigungsfrist für "{{ data.name }}" endet in {{ data.days_until_cancellation }} Tagen (am {{ data.cancellation_deadline }}).
+        {% else %}
+          Die nächste Abbuchung für "{{ data.name }}" in Höhe von {{ data.cost }} {{ data.currency }} steht in {{ data.days_until_renewal }} Tagen an (Zahlungsart: {{ data.payment_method }}).
+        {% endif %}
+      {% else %}
+        Dies ist eine Test-Benachrichtigung für den Subscription Manager. Wenn ein Abo zur Verlängerung oder Kündigung ansteht, werden hier Name, Kosten und Fristen aufgeführt.
       {% endif %}
     data:
-      tag: "sub_reminder_{{ trigger.event.data.entry_id }}"
+      tag: >
+        {% if trigger is defined and 'event' in trigger and 'data' in trigger.event %}
+          sub_reminder_{{ trigger.event.data.entry_id }}
+        {% else %}
+          sub_reminder_test
+        {% endif %}
       group: "SubscriptionManager"
       icon: "mdi:calendar-clock"
       clickAction: "/config/integrations/integration/subscription_manager"
