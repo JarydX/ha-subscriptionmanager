@@ -59,44 +59,70 @@ Die Integration liefert ein interaktives **Lovelace-Übersichtswidget** mit Sort
 
 
 ---
-
-## 📊 Dashboard Widget (`subscription-manager-card`)
-
-Die passende Dashboard-Karte wird bequem als **HACS Frontend-Plugin** bereitgestellt:
-
-### 1. Karte über HACS installieren (Empfohlen)
-
-1. Öffne **HACS** in Home Assistant -> **Frontend** (oder Dashboards).
-2. Klicke oben rechts auf das Dreipunkt-Menü -> **Benutzerdefinierte Repositories**.
-3. Trage ein:
-   - **Repository**: `https://github.com/JarydX/ha-subscriptionmanager-card`
-   - **Typ**: `Lovelace` (oder Dashboard)
-4. Suche nach **Subscription Manager Card** und klicke auf **Herunterladen**.
-5. HACS registriert die Karte automatisch unter Dashboard -> Ressourcen.
-
-
----
-
-### 2. Karte zum Dashboard hinzufügen
-
-Klicke im Dashboard auf **+ Karte hinzufügen**, suche nach **Subscription Manager Card** (oder wechsle in den Code-Editor):
-
-```yaml
-type: custom:subscription-manager-card
-title: Meine Abonnements
-show_summary: true
-show_sorting: true
-```
-
-
-### Konfigurations-Optionen:
-
-| Parameter | Typ | Standard | Beschreibung |
-|---|---|---|---|
-| `title` | string | `'Abonnements'` | Titel der Lovelace Card |
-| `show_summary` | boolean | `true` | Zeigt Monats-/Jahresgesamtsumme und Abo-Anzahl oben |
-| `show_sorting` | boolean | `true` | Zeigt Umschalt-Buttons (Fälligkeit, Kündigungsfrist, Kosten, Name) |
-| `entity` | string | `sensor.subscriptions_overview_summary` | Optional: Manuelle Angabe der Summary-Entität |
+ 
+ ## 📊 Dashboard Widgets (`subscription-manager-card` & `subscription-report-card`)
+ 
+ Die Dashboard-Karten werden bequem als gebündeltes **HACS Frontend-Plugin** bereitgestellt:
+ 
+ ### 1. Karte über HACS installieren (Empfohlen)
+ 
+ 1. Öffne **HACS** in Home Assistant -> **Frontend** (oder Dashboards).
+ 2. Klicke oben rechts auf das Dreipunkt-Menü -> **Benutzerdefinierte Repositories**.
+ 3. Trage ein:
+    - **Repository**: `https://github.com/JarydX/ha-subscriptionmanager-card`
+    - **Typ**: `Lovelace` (oder Dashboard)
+ 4. Suche nach **Subscription Manager Card** und klicke auf **Herunterladen**.
+ 5. HACS registriert die Karte automatisch unter Dashboard -> Ressourcen. Das Bundle enthält sofort beide Karten!
+ 
+ ---
+ 
+ ### 2. Übersichtskarte: `custom:subscription-manager-card`
+ 
+ Klicke im Dashboard auf **+ Karte hinzufügen**, suche nach **Subscription Manager Card** (oder im YAML-Modus):
+ 
+ ```yaml
+ type: custom:subscription-manager-card
+ title: Meine Abonnements
+ # Optional: Pre-Filter auf bestimmte Kategorien
+ categories:
+   - streaming
+   - software
+ # Optional: Monatliches Budget in Euro
+ budget: 150
+ show_summary: true
+ show_sorting: true
+ show_categories: true
+ show_cashflow: true
+ ```
+ 
+ #### Konfigurations-Optionen:
+ 
+ | Parameter | Typ | Standard | Beschreibung |
+ |---|---|---|---|
+ | `title` | string | `'Abonnements'` | Titel der Lovelace Card |
+ | `categories` | list | `[]` | Feste Vorauswahl an Kategorien (z. B. `['streaming', 'software']`) |
+ | `budget` | number | `null` | Monatliches Budget in Euro mit visueller Auslastungsanzeige |
+ | `show_summary` | boolean | `true` | Zeigt Monats-/Jahresgesamtsumme und Abo-Anzahl oben |
+ | `show_sorting` | boolean | `true` | Zeigt Umschalt-Buttons (Fälligkeit, Kündigungsfrist, Kosten, Name) |
+ | `show_categories` | boolean | `true` | Zeigt interaktive Filter-Chips für Kategorien |
+ | `show_cashflow` | boolean | `true` | Zeigt noch offene Rest-Zahlungen im laufenden Monat |
+ | `entity` | string | `sensor.subscriptions_overview_summary` | Optional: Manuelle Angabe der Summary-Entität |
+ 
+ ---
+ 
+ ### 3. Donut Report Karte: `custom:subscription-report-card`
+ 
+ Interaktives SVG-Donut-Diagramm zur Analyse der Kostenverteilung:
+ 
+ ```yaml
+ type: custom:subscription-report-card
+ title: Ausgaben-Verteilung
+ default_period: month # 'month' oder 'year'
+ default_group_by: category # 'category' oder 'payment_method'
+ show_period_toggle: true
+ show_group_toggle: true
+ show_legend: true
+ ```
 
 ---
 
