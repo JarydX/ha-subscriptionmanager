@@ -3,6 +3,7 @@
   "name": "Subscription Manager",
   "codeowners": ["@JarydX"],
   "config_flow": true,
+  "dependencies": ["http", "frontend"],
   "documentation": "https://github.com/JarydX/ha-subscriptionmanager",
   "integration_type": "hub",
   "iot_class": "calculated",
