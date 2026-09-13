@@ -12,8 +12,18 @@ permissions: {}
 jobs:
   validate-hacs:
     runs-on: "ubuntu-latest"
+    name: HACS validation
     steps:
       - name: HACS validation
         uses: "hacs/action@22.5.0"
         with:
           category: "Integration"
+
+  validate-hassfest:
+    runs-on: "ubuntu-latest"
+    name: Hassfest validation
+    steps:
+      - name: Checkout repository
+        uses: "actions/checkout@v4"
+      - name: Hassfest validation
+        uses: "home-assistant/actions/hassfest@master"
