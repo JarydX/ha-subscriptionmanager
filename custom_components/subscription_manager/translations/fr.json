@@ -1,0 +1,146 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurer Subscription Manager",
+        "description": "Voulez-vous activer Subscription Manager ? Une fois configuré, vous pourrez gérer tous vos abonnements via le bouton « Configurer » sur la carte de l'intégration."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Subscription Manager est déjà configuré. Vous pouvez gérer vos abonnements en cliquant sur « Configurer » sur la carte de l'intégration."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Gestion des abonnements",
+        "description": "Choisissez une action :",
+        "menu_options": {
+          "add": "➕ Ajouter un nouvel abonnement",
+          "edit_select": "✏️ Modifier un abonnement existant",
+          "delete": "🗑️ Supprimer un abonnement"
+        }
+      },
+      "add": {
+        "title": "Ajouter un abonnement",
+        "description": "Suivre un nouvel abonnement récurrent ou un contrat.",
+        "data": {
+          "name": "Nom de l'abonnement (ex. Netflix)",
+          "cost": "Coût",
+          "currency": "Devise (ex. EUR, USD)",
+          "billing_interval": "Périodicité de facturation",
+          "start_date": "Date de début / Prochain paiement",
+          "payment_method": "Moyen de paiement",
+          "category": "Catégorie",
+          "alert_days": "Seuil d'alerte (jours avant)",
+          "notice_period_days": "Délai de résiliation (jours avant renouvellement, optionnel)",
+          "contract_end_date": "Date de fin de contrat / engagement minimal (optionnel)",
+          "auto_renew": "Renouvellement automatique",
+          "notes": "Remarques / N° de contrat (optionnel)",
+          "website": "Site web / Lien de résiliation (optionnel)"
+        }
+      },
+      "edit_select": {
+        "title": "Sélectionner un abonnement",
+        "description": "Choisissez l'abonnement que vous souhaitez modifier.",
+        "data": {
+          "sub_id": "Abonnement"
+        }
+      },
+      "edit": {
+        "title": "Modifier l'abonnement",
+        "description": "Mettre à jour les conditions et la configuration de l'abonnement.",
+        "data": {
+          "name": "Nom de l'abonnement",
+          "cost": "Coût",
+          "currency": "Devise",
+          "billing_interval": "Périodicité de facturation",
+          "start_date": "Date de début / Prochain paiement",
+          "payment_method": "Moyen de paiement",
+          "category": "Catégorie",
+          "alert_days": "Seuil d'alerte (jours avant)",
+          "notice_period_days": "Délai de résiliation (jours avant renouvellement, optionnel)",
+          "contract_end_date": "Date de fin de contrat / engagement minimal (optionnel)",
+          "auto_renew": "Renouvellement automatique",
+          "notes": "Remarques / N° de contrat (optionnel)",
+          "website": "Site web / Lien de résiliation (optionnel)"
+        }
+      },
+      "delete": {
+        "title": "Supprimer un abonnement",
+        "description": "Choisissez l'abonnement que vous souhaitez supprimer. Ses capteurs associés seront complètement supprimés.",
+        "data": {
+          "sub_id": "Abonnement à supprimer"
+        }
+      }
+    },
+    "error": {
+      "empty_name": "Veuillez saisir un nom pour l'abonnement."
+    }
+  },
+  "selector": {
+    "billing_interval": {
+      "options": {
+        "weekly": "Hebdomadaire",
+        "monthly": "Mensuel",
+        "quarterly": "Trimestriel",
+        "half_yearly": "Semestriel",
+        "yearly": "Annuel"
+      }
+    },
+    "payment_method": {
+      "options": {
+        "paypal": "PayPal",
+        "credit_card": "Carte de crédit",
+        "sepa": "Prélèvement SEPA",
+        "apple_pay": "Apple Pay",
+        "google_pay": "Google Pay",
+        "bank_transfer": "Virement bancaire",
+        "invoice": "Facture",
+        "other": "Autre"
+      }
+    },
+    "category": {
+      "options": {
+        "streaming": "Streaming & Divertissement",
+        "software": "Logiciels & Cloud",
+        "fitness": "Fitness & Sport",
+        "insurance": "Assurance & Finance",
+        "household": "Maison & Énergie",
+        "gaming": "Jeux vidéo",
+        "news": "Actualités & Magazines",
+        "other": "Autre"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_payment": { "name": "Prochain paiement" },
+      "days_until_renewal": { "name": "Jours avant renouvellement" },
+      "cost": { "name": "Coût" },
+      "monthly_cost": { "name": "Coût mensuel" },
+      "payment_method": {
+        "name": "Moyen de paiement",
+        "state": {
+          "paypal": "PayPal",
+          "credit_card": "Carte de crédit",
+          "sepa": "Prélèvement SEPA",
+          "apple_pay": "Apple Pay",
+          "google_pay": "Google Pay",
+          "bank_transfer": "Virement bancaire",
+          "invoice": "Facture",
+          "other": "Autre"
+        }
+      },
+      "cancellation_deadline": { "name": "Date limite de résiliation" },
+      "days_until_cancellation": { "name": "Jours avant la date limite de résiliation" },
+      "total_monthly_cost": { "name": "Coût mensuel total" },
+      "total_yearly_cost": { "name": "Coût annuel total" },
+      "active_count": { "name": "Abonnements actifs" },
+      "summary": { "name": "Résumé des abonnements" }
+    },
+    "binary_sensor": {
+      "renewal_due": { "name": "Renouvellement / Résiliation imminente" }
+    }
+  }
+}

@@ -1,13 +1,12 @@
 blueprint:
-  name: Subscription Manager - Abo Erinnerung & Fristen-Warnung
+  name: Subscription Manager - Subscription Reminder & Notice Deadline Alert
   description: >
-    Sendet automatisch Benachrichtigungen vor dem nächsten Abrechnungstag oder vor
-    Ablauf einer Kündigungsfrist für deine Abonnements.
+    Automatically sends push notifications prior to the next billing date or upcoming notice/cancellation deadline for your subscriptions.
   domain: automation
   input:
     notify_device:
-      name: Benachrichtigungs-Gerät
-      description: Das Smartphone/Gerät, das die Benachrichtigung empfangen soll (Home Assistant Mobile App).
+      name: Notification Device
+      description: The smartphone or device to receive notifications (Home Assistant Mobile App).
       selector:
         device:
           integration: mobile_app
@@ -25,20 +24,20 @@ action:
     device_id: !input notify_device
     title: >
       {% if trigger is defined and 'event' in trigger and 'data' in trigger.event %}
-        Abo-Erinnerung: {{ trigger.event.data.name }}
+        Subscription Reminder: {{ trigger.event.data.name }}
       {% else %}
-        Abo-Erinnerung (Test)
+        Subscription Reminder (Test)
       {% endif %}
     message: >
       {% if trigger is defined and 'event' in trigger and 'data' in trigger.event %}
         {% set data = trigger.event.data %}
         {% if data.is_cancellation_due and data.days_until_cancellation is not none %}
-          Achtung: Die Kündigungsfrist für "{{ data.name }}" endet in {{ data.days_until_cancellation }} Tagen (am {{ data.cancellation_deadline }}).
+          Notice deadline alert: Notice period for "{{ data.name }}" ends in {{ data.days_until_cancellation }} days (on {{ data.cancellation_deadline }}).
         {% else %}
-          Die nächste Abbuchung für "{{ data.name }}" in Höhe von {{ data.cost }} {{ data.currency }} steht in {{ data.days_until_renewal }} Tagen an (Zahlungsart: {{ data.payment_method }}).
+          Upcoming payment for "{{ data.name }}" of {{ data.cost }} {{ data.currency }} is due in {{ data.days_until_renewal }} days (Payment method: {{ data.payment_method }}).
         {% endif %}
       {% else %}
-        Dies ist eine Test-Benachrichtigung für den Subscription Manager. Wenn ein Abo zur Verlängerung oder Kündigung ansteht, werden hier Name, Kosten und Fristen aufgeführt.
+        This is a test notification for Subscription Manager. When a subscription renewal or cancellation deadline is due, the name, cost, and deadlines will be shown here.
       {% endif %}
     data:
       tag: >

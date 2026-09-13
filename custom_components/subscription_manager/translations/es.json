@@ -1,0 +1,146 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar Subscription Manager",
+        "description": "¿Deseas habilitar Subscription Manager? Una vez configurado, podrás gestionar todas tus suscripciones mediante el botón «Configurar» en la tarjeta de la integración."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Subscription Manager ya está configurado. Puedes gestionar tus suscripciones haciendo clic en «Configurar» en la tarjeta de la integración."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Gestión de suscripciones",
+        "description": "Elige una acción:",
+        "menu_options": {
+          "add": "➕ Añadir nueva suscripción",
+          "edit_select": "✏️ Editar suscripción existente",
+          "delete": "🗑️ Eliminar suscripción"
+        }
+      },
+      "add": {
+        "title": "Añadir suscripción",
+        "description": "Realiza el seguimiento de una nueva suscripción recurrente o contrato.",
+        "data": {
+          "name": "Nombre de la suscripción (p. ej. Netflix)",
+          "cost": "Coste",
+          "currency": "Moneda (p. ej. EUR, USD)",
+          "billing_interval": "Intervalo de facturación",
+          "start_date": "Fecha de inicio / Próximo pago",
+          "payment_method": "Método de pago",
+          "category": "Categoría",
+          "alert_days": "Umbral de aviso (días de antelación)",
+          "notice_period_days": "Plazo de cancelación (días antes de la renovación, opcional)",
+          "contract_end_date": "Fecha de finalización de contrato / permanencia (opcional)",
+          "auto_renew": "Renovación automática",
+          "notes": "Notas / N.º de contrato (opcional)",
+          "website": "Sitio web / Enlace de cancelación (opcional)"
+        }
+      },
+      "edit_select": {
+        "title": "Seleccionar suscripción",
+        "description": "Elige la suscripción que deseas editar.",
+        "data": {
+          "sub_id": "Suscripción"
+        }
+      },
+      "edit": {
+        "title": "Editar suscripción",
+        "description": "Actualiza los términos y la configuración de la suscripción.",
+        "data": {
+          "name": "Nombre de la suscripción",
+          "cost": "Coste",
+          "currency": "Moneda",
+          "billing_interval": "Intervalo de facturación",
+          "start_date": "Fecha de inicio / Próximo pago",
+          "payment_method": "Método de pago",
+          "category": "Categoría",
+          "alert_days": "Umbral de aviso (días de antelación)",
+          "notice_period_days": "Plazo de cancelación (días antes de la renovación, opcional)",
+          "contract_end_date": "Fecha de finalización de contrato / permanencia (opcional)",
+          "auto_renew": "Renovación automática",
+          "notes": "Notas / N.º de contrato (opcional)",
+          "website": "Sitio web / Enlace de cancelación (opcional)"
+        }
+      },
+      "delete": {
+        "title": "Eliminar suscripción",
+        "description": "Elige la suscripción que deseas eliminar. Todos sus sensores asociados se eliminarán por completo.",
+        "data": {
+          "sub_id": "Suscripción a eliminar"
+        }
+      }
+    },
+    "error": {
+      "empty_name": "Por favor, introduce un nombre para la suscripción."
+    }
+  },
+  "selector": {
+    "billing_interval": {
+      "options": {
+        "weekly": "Semanal",
+        "monthly": "Mensual",
+        "quarterly": "Trimestral",
+        "half_yearly": "Semestral",
+        "yearly": "Anual"
+      }
+    },
+    "payment_method": {
+      "options": {
+        "paypal": "PayPal",
+        "credit_card": "Tarjeta de crédito",
+        "sepa": "Domiciliación bancaria SEPA",
+        "apple_pay": "Apple Pay",
+        "google_pay": "Google Pay",
+        "bank_transfer": "Transferencia bancaria",
+        "invoice": "Factura",
+        "other": "Otro"
+      }
+    },
+    "category": {
+      "options": {
+        "streaming": "Streaming y entretenimiento",
+        "software": "Software y nube",
+        "fitness": "Gimnasio y deportes",
+        "insurance": "Seguros y finanzas",
+        "household": "Hogar y suministros",
+        "gaming": "Videojuegos",
+        "news": "Noticias y revistas",
+        "other": "Otro"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "next_payment": { "name": "Próximo pago" },
+      "days_until_renewal": { "name": "Días hasta la renovación" },
+      "cost": { "name": "Coste" },
+      "monthly_cost": { "name": "Coste mensual" },
+      "payment_method": {
+        "name": "Método de pago",
+        "state": {
+          "paypal": "PayPal",
+          "credit_card": "Tarjeta de crédito",
+          "sepa": "Domiciliación bancaria SEPA",
+          "apple_pay": "Apple Pay",
+          "google_pay": "Google Pay",
+          "bank_transfer": "Transferencia bancaria",
+          "invoice": "Factura",
+          "other": "Otro"
+        }
+      },
+      "cancellation_deadline": { "name": "Fecha límite de cancelación" },
+      "days_until_cancellation": { "name": "Días hasta la fecha límite de cancelación" },
+      "total_monthly_cost": { "name": "Coste mensual total" },
+      "total_yearly_cost": { "name": "Coste anual total" },
+      "active_count": { "name": "Suscripciones activas" },
+      "summary": { "name": "Resumen de suscripciones" }
+    },
+    "binary_sensor": {
+      "renewal_due": { "name": "Renovación / Cancelación pendiente" }
+    }
+  }
+}

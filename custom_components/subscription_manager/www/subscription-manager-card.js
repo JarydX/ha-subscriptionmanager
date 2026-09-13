@@ -6,43 +6,398 @@
  *    - Interactive SVG Donut chart, category breakdown, payment method breakdown, month/year toggle
  */
 
-const CATEGORY_META = {
-  streaming: { label: 'Streaming', color: '#9c27b0', icon: 'mdi:filmstrip' },
-  software: { label: 'Software', color: '#1976d2', icon: 'mdi:laptop' },
-  fitness: { label: 'Fitness', color: '#388e3c', icon: 'mdi:dumbbell' },
-  insurance: { label: 'Versicherung', color: '#f57c00', icon: 'mdi:shield-check' },
-  household: { label: 'Haushalt', color: '#0097a7', icon: 'mdi:home' },
-  gaming: { label: 'Gaming', color: '#e91e63', icon: 'mdi:gamepad-variant' },
-  news: { label: 'Nachrichten', color: '#546e7a', icon: 'mdi:newspaper' },
-  other: { label: 'Sonstige', color: '#795548', icon: 'mdi:tag' },
+// ============================================================================
+// Multi-language (i18n) Support: DE, EN, FR, ES
+// ============================================================================
+
+const I18N = {
+  de: {
+    intervals: {
+      weekly: 'wöchentlich',
+      monthly: 'monatlich',
+      quarterly: 'vierteljährlich',
+      half_yearly: 'halbjährlich',
+      yearly: 'jährlich',
+      until_end: 'bis Vertragsende',
+      expired: 'abgelaufen',
+    },
+    payments: {
+      paypal: 'PayPal',
+      credit_card: 'Kreditkarte',
+      sepa: 'SEPA-Lastschrift',
+      apple_pay: 'Apple Pay',
+      google_pay: 'Google Pay',
+      bank_transfer: 'Banküberweisung',
+      invoice: 'Rechnung',
+      other: 'Sonstige',
+      payment_fallback: 'Zahlung',
+    },
+    categories: {
+      streaming: 'Streaming',
+      software: 'Software',
+      fitness: 'Fitness',
+      insurance: 'Versicherung',
+      household: 'Haushalt',
+      gaming: 'Gaming',
+      news: 'Nachrichten',
+      other: 'Sonstige',
+      all: 'Alle',
+    },
+    ui: {
+      title: 'Abonnements',
+      report_title: 'Ausgaben-Report',
+      monthly: 'Monatlich',
+      yearly: 'Jährlich',
+      active: 'Aktiv',
+      sort_by: 'Sortieren:',
+      due: 'Fälligkeit',
+      notice: 'Kündigungsfrist',
+      cost: 'Kosten',
+      name: 'Name',
+      category: 'Kategorie:',
+      empty: 'Keine passenden Abonnements gefunden.',
+      empty_reset: 'Versuche die Filter-Auswahl zurückzusetzen.',
+      empty_add: 'Füge Abos über <i>Einstellungen -> Geräte & Dienste -> Subscription Manager</i> hinzu.',
+      budget: 'Budget',
+      of: 'von',
+      cashflow_remaining: 'Im restlichen Monat noch fällig:',
+      payment_single: 'Zahlung',
+      payment_plural: 'Zahlungen',
+      status_ended: 'Beendet',
+      status_cancelled: 'Gekündigt',
+      expired_on: 'Abgelaufen am:',
+      ends_on: 'Endet am:',
+      last_payment: 'Letzter Zahltag:',
+      payday: 'Zahltag:',
+      cancel_by: 'Kündigen bis:',
+      unknown: 'unbekannt',
+      category_group: 'Kategorien',
+      payment_group: 'Zahlung',
+      month: 'Monat',
+      year: 'Jahr',
+      total_month: 'Gesamt / Monat',
+      total_year: 'Gesamt / Jahr',
+      sub_single: 'Abo',
+      sub_plural: 'Abos',
+      no_report_data: 'Keine Daten für den gewählten Filter vorhanden.',
+    },
+  },
+  en: {
+    intervals: {
+      weekly: 'weekly',
+      monthly: 'monthly',
+      quarterly: 'quarterly',
+      half_yearly: 'semi-annually',
+      yearly: 'yearly',
+      until_end: 'until contract end',
+      expired: 'expired',
+    },
+    payments: {
+      paypal: 'PayPal',
+      credit_card: 'Credit Card',
+      sepa: 'SEPA Direct Debit',
+      apple_pay: 'Apple Pay',
+      google_pay: 'Google Pay',
+      bank_transfer: 'Bank Transfer',
+      invoice: 'Invoice',
+      other: 'Other',
+      payment_fallback: 'Payment',
+    },
+    categories: {
+      streaming: 'Streaming',
+      software: 'Software',
+      fitness: 'Fitness',
+      insurance: 'Insurance',
+      household: 'Household',
+      gaming: 'Gaming',
+      news: 'News',
+      other: 'Other',
+      all: 'All',
+    },
+    ui: {
+      title: 'Subscriptions',
+      report_title: 'Expense Report',
+      monthly: 'Monthly',
+      yearly: 'Yearly',
+      active: 'Active',
+      sort_by: 'Sort by:',
+      due: 'Due Date',
+      notice: 'Notice Deadline',
+      cost: 'Cost',
+      name: 'Name',
+      category: 'Category:',
+      empty: 'No matching subscriptions found.',
+      empty_reset: 'Try resetting the filter selection.',
+      empty_add: 'Add subscriptions via <i>Settings -> Devices & Services -> Subscription Manager</i>.',
+      budget: 'Budget',
+      of: 'of',
+      cashflow_remaining: 'Remaining due this month:',
+      payment_single: 'payment',
+      payment_plural: 'payments',
+      status_ended: 'Ended',
+      status_cancelled: 'Cancelled',
+      expired_on: 'Expired on:',
+      ends_on: 'Ends on:',
+      last_payment: 'Last payment:',
+      payday: 'Due on:',
+      cancel_by: 'Notice by:',
+      unknown: 'unknown',
+      category_group: 'Categories',
+      payment_group: 'Payment',
+      month: 'Month',
+      year: 'Year',
+      total_month: 'Total / Month',
+      total_year: 'Total / Year',
+      sub_single: 'subscription',
+      sub_plural: 'subscriptions',
+      no_report_data: 'No data available for the selected filter.',
+    },
+  },
+  fr: {
+    intervals: {
+      weekly: 'hebdomadaire',
+      monthly: 'mensuel',
+      quarterly: 'trimestriel',
+      half_yearly: 'semestriel',
+      yearly: 'annuel',
+      until_end: 'jusqu\'à fin de contrat',
+      expired: 'expiré',
+    },
+    payments: {
+      paypal: 'PayPal',
+      credit_card: 'Carte de crédit',
+      sepa: 'Prélèvement SEPA',
+      apple_pay: 'Apple Pay',
+      google_pay: 'Google Pay',
+      bank_transfer: 'Virement bancaire',
+      invoice: 'Facture',
+      other: 'Autre',
+      payment_fallback: 'Paiement',
+    },
+    categories: {
+      streaming: 'Streaming',
+      software: 'Logiciels',
+      fitness: 'Fitness',
+      insurance: 'Assurance',
+      household: 'Maison',
+      gaming: 'Jeux vidéo',
+      news: 'Actualités',
+      other: 'Autre',
+      all: 'Tous',
+    },
+    ui: {
+      title: 'Abonnements',
+      report_title: 'Rapport des dépenses',
+      monthly: 'Mensuel',
+      yearly: 'Annuel',
+      active: 'Actif',
+      sort_by: 'Trier par :',
+      due: 'Échéance',
+      notice: 'Délai résiliation',
+      cost: 'Coût',
+      name: 'Nom',
+      category: 'Catégorie :',
+      empty: 'Aucun abonnement correspondant trouvé.',
+      empty_reset: 'Essayez de réinitialiser le filtre.',
+      empty_add: 'Ajoutez des abonnements via <i>Paramètres -> Appareils et services -> Subscription Manager</i>.',
+      budget: 'Budget',
+      of: 'sur',
+      cashflow_remaining: 'Reste dû ce mois-ci :',
+      payment_single: 'paiement',
+      payment_plural: 'paiements',
+      status_ended: 'Terminé',
+      status_cancelled: 'Résilié',
+      expired_on: 'Expiré le :',
+      ends_on: 'Prend fin le :',
+      last_payment: 'Dernier paiement :',
+      payday: 'Paiement :',
+      cancel_by: 'Résiliation avant le :',
+      unknown: 'inconnu',
+      category_group: 'Catégories',
+      payment_group: 'Paiement',
+      month: 'Mois',
+      year: 'An',
+      total_month: 'Total / Mois',
+      total_year: 'Total / An',
+      sub_single: 'abonnement',
+      sub_plural: 'abonnements',
+      no_report_data: 'Aucune donnée disponible pour le filtre sélectionné.',
+    },
+  },
+  es: {
+    intervals: {
+      weekly: 'semanal',
+      monthly: 'mensual',
+      quarterly: 'trimestral',
+      half_yearly: 'semestral',
+      yearly: 'anual',
+      until_end: 'hasta fin de contrato',
+      expired: 'expirado',
+    },
+    payments: {
+      paypal: 'PayPal',
+      credit_card: 'Tarjeta de crédito',
+      sepa: 'Domiciliación SEPA',
+      apple_pay: 'Apple Pay',
+      google_pay: 'Google Pay',
+      bank_transfer: 'Transferencia bancaria',
+      invoice: 'Factura',
+      other: 'Otro',
+      payment_fallback: 'Pago',
+    },
+    categories: {
+      streaming: 'Streaming',
+      software: 'Software',
+      fitness: 'Gimnasio',
+      insurance: 'Seguros',
+      household: 'Hogar',
+      gaming: 'Videojuegos',
+      news: 'Noticias',
+      other: 'Otro',
+      all: 'Todos',
+    },
+    ui: {
+      title: 'Suscripciones',
+      report_title: 'Informe de gastos',
+      monthly: 'Mensual',
+      yearly: 'Anual',
+      active: 'Activo',
+      sort_by: 'Ordenar por:',
+      due: 'Vencimiento',
+      notice: 'Plazo cancelación',
+      cost: 'Coste',
+      name: 'Nombre',
+      category: 'Categoría:',
+      empty: 'No se encontraron suscripciones coincidentes.',
+      empty_reset: 'Prueba a restablecer la selección del filtro.',
+      empty_add: 'Añade suscripciones en <i>Ajustes -> Dispositivos y servicios -> Subscription Manager</i>.',
+      budget: 'Presupuesto',
+      of: 'de',
+      cashflow_remaining: 'Pendiente este mes:',
+      payment_single: 'pago',
+      payment_plural: 'pagos',
+      status_ended: 'Finalizado',
+      status_cancelled: 'Cancelado',
+      expired_on: 'Expiró el:',
+      ends_on: 'Finaliza el:',
+      last_payment: 'Último pago:',
+      payday: 'Día de pago:',
+      cancel_by: 'Cancelar antes de:',
+      unknown: 'desconocido',
+      category_group: 'Categorías',
+      payment_group: 'Pago',
+      month: 'Mes',
+      year: 'Año',
+      total_month: 'Total / Mes',
+      total_year: 'Total / Año',
+      sub_single: 'suscripción',
+      sub_plural: 'suscripciones',
+      no_report_data: 'No hay datos disponibles para el filtro seleccionado.',
+    },
+  },
 };
 
-const PAYMENT_META = {
-  paypal: { label: 'PayPal', color: '#003087', icon: 'mdi:credit-card-outline' },
-  credit_card: { label: 'Kreditkarte', color: '#0288d1', icon: 'mdi:credit-card' },
-  sepa: { label: 'SEPA-Lastschrift', color: '#2e7d32', icon: 'mdi:bank' },
-  apple_pay: { label: 'Apple Pay', color: '#424242', icon: 'mdi:apple' },
-  google_pay: { label: 'Google Pay', color: '#ea4335', icon: 'mdi:google' },
-  bank_transfer: { label: 'Überweisung', color: '#00796b', icon: 'mdi:bank-transfer' },
-  invoice: { label: 'Rechnung', color: '#5d4037', icon: 'mdi:receipt' },
-  other: { label: 'Sonstige', color: '#616161', icon: 'mdi:cash' },
-};
-
-function formatCurrency(val, currency = 'EUR') {
-  const symbol = currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency;
-  const num = parseFloat(val) || 0;
-  return `${num.toFixed(2).replace('.', ',')} ${symbol}`;
+function getLanguage(hass) {
+  const raw = (hass?.locale?.language || hass?.language || 'en').toLowerCase();
+  if (raw.startsWith('de')) return 'de';
+  if (raw.startsWith('fr')) return 'fr';
+  if (raw.startsWith('es')) return 'es';
+  return 'en';
 }
 
-function formatDate(dateStr) {
+function t(lang, section, key) {
+  const dict = I18N[lang] || I18N.en;
+  return dict?.[section]?.[key] || I18N.en?.[section]?.[key] || key;
+}
+
+function getPaymentLabel(method, lang = 'en') {
+  const norm = (method || '').toLowerCase();
+  const dict = I18N[lang] || I18N.en;
+  return dict?.payments?.[norm] || I18N.en?.payments?.[norm] || method || t(lang, 'payments', 'payment_fallback');
+}
+
+function getIntervalLabel(interval, lang = 'en') {
+  const norm = (interval || '').toLowerCase();
+  const dict = I18N[lang] || I18N.en;
+  return dict?.intervals?.[norm] || I18N.en?.intervals?.[norm] || interval || t(lang, 'intervals', 'monthly');
+}
+
+function getCategoryLabel(category, lang = 'en') {
+  const norm = (category || '').toLowerCase();
+  const dict = I18N[lang] || I18N.en;
+  return dict?.categories?.[norm] || I18N.en?.categories?.[norm] || category;
+}
+
+const CATEGORY_COLORS = {
+  streaming: { color: '#9c27b0', icon: 'mdi:filmstrip' },
+  software: { color: '#1976d2', icon: 'mdi:laptop' },
+  fitness: { color: '#388e3c', icon: 'mdi:dumbbell' },
+  insurance: { color: '#f57c00', icon: 'mdi:shield-check' },
+  household: { color: '#0097a7', icon: 'mdi:home' },
+  gaming: { color: '#e91e63', icon: 'mdi:gamepad-variant' },
+  news: { color: '#546e7a', icon: 'mdi:newspaper' },
+  other: { color: '#795548', icon: 'mdi:tag' },
+};
+
+const PAYMENT_COLORS = {
+  paypal: { color: '#003087', icon: 'mdi:credit-card-outline' },
+  credit_card: { color: '#0288d1', icon: 'mdi:credit-card' },
+  sepa: { color: '#2e7d32', icon: 'mdi:bank' },
+  apple_pay: { color: '#424242', icon: 'mdi:apple' },
+  google_pay: { color: '#ea4335', icon: 'mdi:google' },
+  bank_transfer: { color: '#00796b', icon: 'mdi:bank-transfer' },
+  invoice: { color: '#5d4037', icon: 'mdi:receipt' },
+  other: { color: '#616161', icon: 'mdi:cash' },
+};
+
+function getCategoryMeta(key, lang = 'en') {
+  const norm = (key || '').toLowerCase();
+  const meta = CATEGORY_COLORS[norm] || { color: '#795548', icon: 'mdi:tag' };
+  return {
+    ...meta,
+    label: getCategoryLabel(norm, lang),
+  };
+}
+
+function getPaymentMeta(key, lang = 'en') {
+  const norm = (key || '').toLowerCase();
+  const meta = PAYMENT_COLORS[norm] || { color: '#607d8b', icon: 'mdi:cash' };
+  return {
+    ...meta,
+    label: getPaymentLabel(norm, lang),
+  };
+}
+
+function formatCurrency(val, currency = 'EUR', lang = 'de') {
+  const num = parseFloat(val) || 0;
+  const localeMap = { de: 'de-DE', en: 'en-US', fr: 'fr-FR', es: 'es-ES' };
+  try {
+    return new Intl.NumberFormat(localeMap[lang] || 'de-DE', {
+      style: 'currency',
+      currency: currency || 'EUR',
+    }).format(num);
+  } catch {
+    const symbol = currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency;
+    return `${num.toFixed(2)} ${symbol}`;
+  }
+}
+
+function formatDate(dateStr, lang = 'de') {
   if (!dateStr || dateStr === 'unknown' || dateStr === 'unavailable') return '—';
   try {
     const parts = dateStr.split('-');
     if (parts.length === 3) {
-      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+      const y = parts[0];
+      const m = parts[1];
+      const d = parts[2];
+      if (lang === 'en') {
+        return `${m}/${d}/${y}`;
+      }
+      return `${d}.${m}.${y}`;
     }
     const d = new Date(dateStr);
-    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const localeMap = { de: 'de-DE', en: 'en-US', fr: 'fr-FR', es: 'es-ES' };
+    return d.toLocaleDateString(localeMap[lang] || 'de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   } catch {
     return dateStr;
   }
@@ -146,7 +501,7 @@ class SubscriptionManagerCard extends HTMLElement {
     this._sortAsc = true;
     this._selectedCategory = 'all';
     this._config = {
-      title: 'Abonnements',
+      title: undefined,
       show_summary: true,
       show_sorting: true,
       show_categories: true,
@@ -173,10 +528,10 @@ class SubscriptionManagerCard extends HTMLElement {
 
   setConfig(config) {
     if (!config) {
-      throw new Error('Ungültige Konfiguration');
+      throw new Error('Ungültige Konfiguration / Invalid configuration');
     }
     this._config = {
-      title: config.title !== undefined ? config.title : 'Abonnements',
+      title: config.title,
       entity: config.entity,
       entities: config.entities || [],
       categories: Array.isArray(config.categories) ? config.categories : (config.category ? [config.category] : null),
@@ -201,6 +556,7 @@ class SubscriptionManagerCard extends HTMLElement {
   _updateView() {
     if (!this._hass) return;
 
+    const lang = getLanguage(this._hass);
     const data = getSubscriptionsFromHass(this._hass, this._config.entity);
     const serialized = JSON.stringify({
       subs: data.subscriptions,
@@ -214,13 +570,14 @@ class SubscriptionManagerCard extends HTMLElement {
       showCats: this._config.show_categories,
       cashflow: this._config.show_cashflow,
       budget: this._config.budget,
+      lang: lang,
     });
 
     if (this._lastSerialized === serialized) {
       return;
     }
     this._lastSerialized = serialized;
-    this._render(data);
+    this._render(data, lang);
   }
 
   _filterAndSort(rawSubs) {
@@ -275,7 +632,7 @@ class SubscriptionManagerCard extends HTMLElement {
     this.dispatchEvent(event);
   }
 
-  _render(data) {
+  _render(data, lang = 'de') {
     const allSubs = data.subscriptions || [];
     const filteredSubs = this._filterAndSort(allSubs);
 
@@ -318,6 +675,12 @@ class SubscriptionManagerCard extends HTMLElement {
       )
     );
 
+    // Card title
+    const defaultTitles = ['Abonnements', 'Subscriptions', 'Suscripciones'];
+    const cardTitle = (this._config.title && !defaultTitles.includes(this._config.title))
+      ? this._config.title
+      : t(lang, 'ui', 'title');
+
     // Budget progress
     let budgetHtml = '';
     if (this._config.budget && this._config.budget > 0) {
@@ -329,7 +692,7 @@ class SubscriptionManagerCard extends HTMLElement {
       budgetHtml = `
         <div class="budget-container">
           <div class="budget-header">
-            <span>Budget: ${formatCurrency(activeMonthly)} von ${formatCurrency(this._config.budget)}</span>
+            <span>${t(lang, 'ui', 'budget')}: ${formatCurrency(activeMonthly, undefined, lang)} ${t(lang, 'ui', 'of')} ${formatCurrency(this._config.budget, undefined, lang)}</span>
             <span>${pct}%</span>
           </div>
           <div class="budget-bar">
@@ -342,10 +705,11 @@ class SubscriptionManagerCard extends HTMLElement {
     // Cashflow subtitle
     let cashflowHtml = '';
     if (this._config.show_cashflow && cashflowCount > 0) {
+      const payWord = cashflowCount === 1 ? t(lang, 'ui', 'payment_single') : t(lang, 'ui', 'payment_plural');
       cashflowHtml = `
         <div class="cashflow-hint">
           <ha-icon icon="mdi:calendar-arrow-right" class="cashflow-icon"></ha-icon>
-          Im restlichen Monat noch fällig: <b>${formatCurrency(cashflowRemaining)}</b> (${cashflowCount} ${cashflowCount === 1 ? 'Zahlung' : 'Zahlungen'})
+          ${t(lang, 'ui', 'cashflow_remaining')} <b>${formatCurrency(cashflowRemaining, undefined, lang)}</b> (${cashflowCount} ${payWord})
         </div>
       `;
     }
@@ -380,46 +744,47 @@ class SubscriptionManagerCard extends HTMLElement {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 8px;
-          margin-bottom: 12px;
+          margin-bottom: 14px;
         }
         .summary-box {
           background: var(--secondary-background-color, rgba(125, 125, 125, 0.08));
+          padding: 10px 8px;
           border-radius: 8px;
-          padding: 10px 6px;
           text-align: center;
+          border: 1px solid var(--divider-color, rgba(125, 125, 125, 0.1));
         }
         .summary-label {
           font-size: 0.72rem;
-          color: var(--secondary-text-color, #757575);
+          color: var(--secondary-text-color);
           text-transform: uppercase;
           letter-spacing: 0.5px;
           margin-bottom: 4px;
         }
         .summary-value {
-          font-size: 1.05rem;
+          font-size: 1.15rem;
           font-weight: 700;
-          color: var(--primary-color, #03a9f4);
-          white-space: nowrap;
+          color: var(--primary-text-color);
         }
         .budget-container {
-          margin-bottom: 12px;
+          margin-bottom: 14px;
         }
         .budget-header {
           display: flex;
           justify-content: space-between;
-          font-size: 0.8rem;
-          color: var(--secondary-text-color, #757575);
+          font-size: 0.78rem;
+          color: var(--secondary-text-color);
           margin-bottom: 4px;
         }
         .budget-bar {
           height: 6px;
-          background: var(--divider-color, rgba(125, 125, 125, 0.2));
           border-radius: 3px;
+          background: var(--secondary-background-color, rgba(125, 125, 125, 0.15));
           overflow: hidden;
         }
         .budget-fill {
           height: 100%;
-          transition: width 0.4s ease;
+          border-radius: 3px;
+          transition: width 0.3s ease;
         }
         .bar-green { background: #4caf50; }
         .bar-yellow { background: #ff9800; }
@@ -429,11 +794,11 @@ class SubscriptionManagerCard extends HTMLElement {
           align-items: center;
           gap: 6px;
           font-size: 0.8rem;
-          color: var(--secondary-text-color, #666);
-          margin-bottom: 12px;
+          color: var(--secondary-text-color);
+          background: var(--secondary-background-color, rgba(125, 125, 125, 0.05));
           padding: 6px 10px;
           border-radius: 6px;
-          background: rgba(3, 169, 244, 0.08);
+          margin-bottom: 12px;
         }
         .cashflow-icon {
           --mdc-icon-size: 16px;
@@ -441,42 +806,39 @@ class SubscriptionManagerCard extends HTMLElement {
         }
         .controls-row {
           display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
           align-items: center;
+          gap: 6px;
           margin-bottom: 10px;
+          flex-wrap: wrap;
         }
         .control-label {
-          font-size: 0.78rem;
-          color: var(--secondary-text-color, #757575);
+          font-size: 0.75rem;
+          color: var(--secondary-text-color);
           margin-right: 2px;
         }
         .chip {
-          display: inline-flex;
-          align-items: center;
-          padding: 3px 8px;
-          border-radius: 14px;
           font-size: 0.75rem;
+          padding: 3px 10px;
+          border-radius: 12px;
+          background: var(--secondary-background-color, rgba(125, 125, 125, 0.1));
+          color: var(--secondary-text-color);
           cursor: pointer;
-          border: 1px solid var(--divider-color, rgba(125, 125, 125, 0.25));
-          background: transparent;
-          color: var(--primary-text-color);
           transition: all 0.15s ease;
           user-select: none;
         }
         .chip:hover {
-          background: var(--secondary-background-color, rgba(125, 125, 125, 0.1));
+          background: var(--primary-color, #03a9f4);
+          color: #ffffff;
         }
         .chip.active {
           background: var(--primary-color, #03a9f4);
           color: #ffffff;
-          border-color: var(--primary-color, #03a9f4);
-          font-weight: 500;
+          font-weight: 600;
         }
         .divider {
           height: 1px;
           background: var(--divider-color, rgba(125, 125, 125, 0.15));
-          margin: 8px 0 12px 0;
+          margin: 10px 0 12px 0;
         }
         .sub-list {
           display: flex;
@@ -598,7 +960,7 @@ class SubscriptionManagerCard extends HTMLElement {
 
       <ha-card>
         <div class="header">
-          <div class="title">${this._config.title}</div>
+          <div class="title">${cardTitle}</div>
         </div>
 
         ${
@@ -606,15 +968,15 @@ class SubscriptionManagerCard extends HTMLElement {
             ? `
           <div class="summary-bar">
             <div class="summary-box">
-              <div class="summary-label">Monatlich</div>
-              <div class="summary-value">${formatCurrency(activeMonthly)}</div>
+              <div class="summary-label">${t(lang, 'ui', 'monthly')}</div>
+              <div class="summary-value">${formatCurrency(activeMonthly, undefined, lang)}</div>
             </div>
             <div class="summary-box">
-              <div class="summary-label">Jährlich</div>
-              <div class="summary-value">${formatCurrency(activeYearly)}</div>
+              <div class="summary-label">${t(lang, 'ui', 'yearly')}</div>
+              <div class="summary-value">${formatCurrency(activeYearly, undefined, lang)}</div>
             </div>
             <div class="summary-box">
-              <div class="summary-label">Aktiv</div>
+              <div class="summary-label">${t(lang, 'ui', 'active')}</div>
               <div class="summary-value">${activeCount}</div>
             </div>
           </div>
@@ -629,13 +991,13 @@ class SubscriptionManagerCard extends HTMLElement {
           this._config.show_categories && availableCategories.length > 1
             ? `
           <div class="controls-row">
-            <span class="control-label">Kategorie:</span>
+            <span class="control-label">${t(lang, 'ui', 'category')}</span>
             <div class="chip ${this._selectedCategory === 'all' ? 'active' : ''}" data-cat="all">
-              Alle
+              ${t(lang, 'categories', 'all')}
             </div>
             ${availableCategories
               .map((c) => {
-                const meta = CATEGORY_META[c] || { label: c };
+                const meta = getCategoryMeta(c, lang);
                 return `
                 <div class="chip ${this._selectedCategory === c ? 'active' : ''}" data-cat="${c}">
                   ${meta.label}
@@ -652,11 +1014,11 @@ class SubscriptionManagerCard extends HTMLElement {
           this._config.show_sorting && filteredSubs.length > 1
             ? `
           <div class="controls-row">
-            <span class="control-label">Sortieren:</span>
-            <div class="chip ${this._sortBy === 'due' ? 'active' : ''}" data-sort="due">Fälligkeit</div>
-            <div class="chip ${this._sortBy === 'notice' ? 'active' : ''}" data-sort="notice">Kündigungsfrist</div>
-            <div class="chip ${this._sortBy === 'cost' ? 'active' : ''}" data-sort="cost">Kosten</div>
-            <div class="chip ${this._sortBy === 'name' ? 'active' : ''}" data-sort="name">Name</div>
+            <span class="control-label">${t(lang, 'ui', 'sort_by')}</span>
+            <div class="chip ${this._sortBy === 'due' ? 'active' : ''}" data-sort="due">${t(lang, 'ui', 'due')}</div>
+            <div class="chip ${this._sortBy === 'notice' ? 'active' : ''}" data-sort="notice">${t(lang, 'ui', 'notice')}</div>
+            <div class="chip ${this._sortBy === 'cost' ? 'active' : ''}" data-sort="cost">${t(lang, 'ui', 'cost')}</div>
+            <div class="chip ${this._sortBy === 'name' ? 'active' : ''}" data-sort="name">${t(lang, 'ui', 'name')}</div>
           </div>
         `
             : ''
@@ -674,8 +1036,8 @@ class SubscriptionManagerCard extends HTMLElement {
             filteredSubs.length === 0
               ? `
             <div class="empty-state">
-              Keine passenden Abonnements gefunden.<br>
-              ${this._selectedCategory !== 'all' ? 'Versuche die Filter-Auswahl zurückzusetzen.' : 'Füge Abos über <i>Einstellungen -> Geräte & Dienste -> Subscription Manager</i> hinzu.'}
+              ${t(lang, 'ui', 'empty')}<br>
+              ${this._selectedCategory !== 'all' ? t(lang, 'ui', 'empty_reset') : t(lang, 'ui', 'empty_add')}
             </div>
           `
               : filteredSubs
@@ -689,32 +1051,33 @@ class SubscriptionManagerCard extends HTMLElement {
 
                     let statusBadge = '';
                     let timingInfo = '';
-                    let intervalText = sub.billing_interval || 'monatlich';
+                    let intervalText = getIntervalLabel(sub.billing_interval, lang);
 
-                    const catMeta = CATEGORY_META[(sub.category || '').toLowerCase()];
+                    const catMeta = getCategoryMeta(sub.category, lang);
                     const catBadge = catMeta ? `<span class="badge badge-category">${catMeta.label}</span>` : '';
+                    const paymentLabel = getPaymentLabel(sub.payment_method, lang);
 
                     if (isExpired) {
-                      statusBadge = '<span class="badge badge-expired">Beendet</span>';
-                      timingInfo = `<span class="badge badge-expired">Abgelaufen am: ${formatDate(endDate)}</span>`;
-                      intervalText = 'abgelaufen';
+                      statusBadge = `<span class="badge badge-expired">${t(lang, 'ui', 'status_ended')}</span>`;
+                      timingInfo = `<span class="badge badge-expired">${t(lang, 'ui', 'expired_on')} ${formatDate(endDate, lang)}</span>`;
+                      intervalText = t(lang, 'intervals', 'expired');
                     } else if (isCancelled) {
-                      statusBadge = '<span class="badge badge-cancelled">Gekündigt</span>';
-                      const endStr = endDate ? formatDate(endDate) : 'unbekannt';
+                      statusBadge = `<span class="badge badge-cancelled">${t(lang, 'ui', 'status_cancelled')}</span>`;
+                      const endStr = endDate ? formatDate(endDate, lang) : t(lang, 'ui', 'unknown');
                       const daysStr = daysEnd !== null && daysEnd !== undefined ? `(${daysEnd}d)` : '';
                       timingInfo = `
                         <span class="badge badge-cancelled-date">
-                          Endet am: ${endStr} ${daysStr}
+                          ${t(lang, 'ui', 'ends_on')} ${endStr} ${daysStr}
                         </span>
                       `;
                       if (sub.next_payment && endDate && sub.next_payment < endDate) {
                         timingInfo += `
                           <span class="badge badge-method">
-                            Letzter Zahltag: ${formatDate(sub.next_payment)}
+                            ${t(lang, 'ui', 'last_payment')} ${formatDate(sub.next_payment, lang)}
                           </span>
                         `;
                       }
-                      intervalText = 'bis Vertragsende';
+                      intervalText = t(lang, 'intervals', 'until_end');
                     } else {
                       let renewalBadgeClass = 'badge-green';
                       if (daysRenewal !== null && daysRenewal !== undefined) {
@@ -724,14 +1087,14 @@ class SubscriptionManagerCard extends HTMLElement {
 
                       timingInfo = `
                         <span class="badge ${renewalBadgeClass}">
-                          Zahltag: ${formatDate(sub.next_payment)} 
+                          ${t(lang, 'ui', 'payday')} ${formatDate(sub.next_payment, lang)} 
                           ${daysRenewal !== null && daysRenewal !== undefined ? `(${daysRenewal}d)` : ''}
                         </span>
                         ${
                           daysNotice !== null && daysNotice !== undefined
                             ? `
                           <span class="badge ${daysNotice <= 7 ? 'badge-red' : 'badge-yellow'}">
-                            Kündigen bis: ${formatDate(sub.cancellation_deadline)} (${daysNotice}d)
+                            ${t(lang, 'ui', 'cancel_by')} ${formatDate(sub.cancellation_deadline, lang)} (${daysNotice}d)
                           </span>
                         `
                             : ''
@@ -746,14 +1109,14 @@ class SubscriptionManagerCard extends HTMLElement {
                     <span>${sub.name}</span>
                     ${statusBadge}
                     ${catBadge}
-                    <span class="badge badge-method">${sub.payment_method || 'Zahlung'}</span>
+                    <span class="badge badge-method">${paymentLabel}</span>
                   </div>
                   <div class="sub-info">
                     ${timingInfo}
                   </div>
                 </div>
                 <div class="sub-cost-box">
-                  <div class="sub-cost ${isCancelled || isExpired ? 'cost-cancelled' : ''}">${formatCurrency(sub.cost, sub.currency)}</div>
+                  <div class="sub-cost ${isCancelled || isExpired ? 'cost-cancelled' : ''}">${formatCurrency(sub.cost, sub.currency, lang)}</div>
                   <div class="sub-interval">${intervalText}</div>
                 </div>
               </div>
@@ -853,46 +1216,46 @@ class SubscriptionManagerCardEditor extends HTMLElement {
       </style>
       <div class="card-config">
         <ha-textfield
-          label="Kartentitel"
-          .value="${this._config.title || 'Abonnements'}"
+          label="Kartentitel / Card Title"
+          .value="${this._config.title || ''}"
           config-value="title"
         ></ha-textfield>
         <ha-textfield
-          label="Kategorien-Vorabfilter (z. B. streaming, software)"
+          label="Kategorien-Filter / Categories Filter (z. B. streaming, software)"
           .value="${catStr}"
           config-value="categories"
-          helper="Kommagetrennt angeben, um nur bestimmte Kategorien anzuzeigen. Leer lassen für alle."
+          helper="Kommagetrennt angeben / Comma-separated. Leer lassen für alle / Leave empty for all."
         ></ha-textfield>
         <ha-textfield
-          label="Monatliches Budget-Limit (optional, z. B. 150)"
+          label="Monatliches Budget / Monthly Budget (optional, z. B. 150)"
           type="number"
           .value="${this._config.budget || ''}"
           config-value="budget"
-          helper="Zeigt einen Fortschrittsbalken gegen deine monatlichen Gesamtkosten."
+          helper="Zeigt Fortschrittsbalken / Shows budget progress bar."
         ></ha-textfield>
         <div class="config-row">
-          <span class="config-label">Kosten-Zusammenfassung oben anzeigen</span>
+          <span class="config-label">Kosten-Zusammenfassung oben / Show summary bar</span>
           <ha-switch
             .checked="${this._config.show_summary !== false}"
             config-value="show_summary"
           ></ha-switch>
         </div>
         <div class="config-row">
-          <span class="config-label">Kategorie-Filterleiste anzeigen</span>
+          <span class="config-label">Kategorie-Filterleiste / Show category filter</span>
           <ha-switch
             .checked="${this._config.show_categories !== false}"
             config-value="show_categories"
           ></ha-switch>
         </div>
         <div class="config-row">
-          <span class="config-label">Sortier-Leiste anzeigen</span>
+          <span class="config-label">Sortier-Leiste / Show sorting bar</span>
           <ha-switch
             .checked="${this._config.show_sorting !== false}"
             config-value="show_sorting"
           ></ha-switch>
         </div>
         <div class="config-row">
-          <span class="config-label">Monats-Restfälligkeiten (Cashflow) anzeigen</span>
+          <span class="config-label">Monats-Restfälligkeiten / Show cashflow forecast</span>
           <ha-switch
             .checked="${this._config.show_cashflow !== false}"
             config-value="show_cashflow"
@@ -949,7 +1312,7 @@ class SubscriptionReportCard extends HTMLElement {
     this._groupBy = 'category'; // 'category' | 'payment_method'
     this._hoveredKey = null;
     this._config = {
-      title: 'Ausgaben-Report',
+      title: undefined,
       default_period: 'monthly',
       default_group_by: 'category',
       show_period_toggle: true,
@@ -977,9 +1340,9 @@ class SubscriptionReportCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config) throw new Error('Ungültige Konfiguration');
+    if (!config) throw new Error('Ungültige Konfiguration / Invalid configuration');
     this._config = {
-      title: config.title !== undefined ? config.title : 'Ausgaben-Report',
+      title: config.title,
       entity: config.entity,
       entities: config.entities || [],
       default_period: config.default_period || 'monthly',
@@ -1003,6 +1366,7 @@ class SubscriptionReportCard extends HTMLElement {
 
   _updateView() {
     if (!this._hass) return;
+    const lang = getLanguage(this._hass);
     const data = getSubscriptionsFromHass(this._hass, this._config.entity);
     const serialized = JSON.stringify({
       subs: data.subscriptions,
@@ -1014,13 +1378,14 @@ class SubscriptionReportCard extends HTMLElement {
       groupToggle: this._config.show_group_toggle,
       legend: this._config.show_legend,
       categories: this._config.categories,
+      lang: lang,
     });
     if (this._lastSerialized === serialized) return;
     this._lastSerialized = serialized;
-    this._render(data);
+    this._render(data, lang);
   }
 
-  _render(data) {
+  _render(data, lang = 'de') {
     let subs = (data.subscriptions || []).filter((s) => !s.is_expired);
 
     if (this._config.categories && this._config.categories.length > 0) {
@@ -1043,8 +1408,8 @@ class SubscriptionReportCard extends HTMLElement {
 
       if (!groups[groupKey]) {
         const meta = this._groupBy === 'payment_method'
-          ? (PAYMENT_META[groupKey] || { label: groupKey, color: '#607d8b', icon: 'mdi:cash' })
-          : (CATEGORY_META[groupKey] || { label: groupKey, color: '#607d8b', icon: 'mdi:tag' });
+          ? getPaymentMeta(groupKey, lang)
+          : getCategoryMeta(groupKey, lang);
 
         groups[groupKey] = {
           key: groupKey,
@@ -1090,15 +1455,22 @@ class SubscriptionReportCard extends HTMLElement {
     });
 
     // Center display
-    let centerValue = formatCurrency(totalSpend);
-    let centerLabel = this._period === 'yearly' ? 'Gesamt / Jahr' : 'Gesamt / Monat';
+    let centerValue = formatCurrency(totalSpend, undefined, lang);
+    let centerLabel = this._period === 'yearly' ? t(lang, 'ui', 'total_year') : t(lang, 'ui', 'total_month');
     if (this._hoveredKey) {
       const hg = sortedGroups.find((g) => g.key === this._hoveredKey);
       if (hg) {
-        centerValue = formatCurrency(hg.cost);
-        centerLabel = `${hg.label} (${hg.count} Abos)`;
+        centerValue = formatCurrency(hg.cost, undefined, lang);
+        const subWord = hg.count === 1 ? t(lang, 'ui', 'sub_single') : t(lang, 'ui', 'sub_plural');
+        centerLabel = `${hg.label} (${hg.count} ${subWord})`;
       }
     }
+
+    // Card title
+    const defaultReportTitles = ['Ausgaben-Report', 'Expense Report', 'Rapport des dépenses', 'Informe de gastos'];
+    const cardTitle = (this._config.title && !defaultReportTitles.includes(this._config.title))
+      ? this._config.title
+      : t(lang, 'ui', 'report_title');
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -1150,26 +1522,28 @@ class SubscriptionReportCard extends HTMLElement {
         }
         .chart-container {
           display: flex;
-          align-items: center;
           justify-content: center;
+          align-items: center;
           position: relative;
-          padding: 10px 0;
+          width: 180px;
+          height: 180px;
+          margin: 16px auto;
         }
-        svg {
-          width: 100%;
-          max-width: 220px;
-          height: auto;
+        .chart-container svg {
           transform: rotate(-90deg);
+          width: 100%;
+          height: 100%;
         }
         .donut-slice {
-          cursor: pointer;
           transition: stroke-width 0.2s ease, opacity 0.2s ease;
+          cursor: pointer;
         }
-        .donut-slice:hover, .donut-slice.hovered {
-          stroke-width: 28px !important;
-          opacity: 1 !important;
+        .donut-slice:hover,
+        .donut-slice.hovered {
+          stroke-width: 28;
+          opacity: 1;
         }
-        .center-text {
+        .donut-center {
           position: absolute;
           display: flex;
           flex-direction: column;
@@ -1177,73 +1551,70 @@ class SubscriptionReportCard extends HTMLElement {
           justify-content: center;
           text-align: center;
           pointer-events: none;
+          max-width: 110px;
         }
-        .center-val {
-          font-size: 1.25rem;
+        .center-value {
+          font-size: 1.15rem;
           font-weight: 700;
+          line-height: 1.2;
           color: var(--primary-text-color);
-          white-space: nowrap;
         }
-        .center-lbl {
-          font-size: 0.72rem;
+        .center-label {
+          font-size: 0.68rem;
           color: var(--secondary-text-color);
           margin-top: 2px;
+          line-height: 1.1;
+          word-break: break-word;
         }
-        .legend-list {
+        .legend {
           display: flex;
           flex-direction: column;
-          gap: 8px;
-          margin-top: 14px;
+          gap: 6px;
+          margin-top: 16px;
         }
         .legend-item {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 6px 10px;
+          padding: 6px 8px;
           border-radius: 6px;
           cursor: pointer;
           transition: background 0.15s ease;
-          border: 1px solid transparent;
         }
-        .legend-item:hover, .legend-item.hovered {
+        .legend-item:hover,
+        .legend-item.hovered {
           background: var(--secondary-background-color, rgba(125, 125, 125, 0.08));
-          border-color: var(--divider-color, rgba(125, 125, 125, 0.2));
         }
         .legend-left {
           display: flex;
           align-items: center;
           gap: 8px;
+          font-size: 0.85rem;
         }
-        .dot {
+        .legend-dot {
           width: 10px;
           height: 10px;
           border-radius: 50%;
+          flex-shrink: 0;
         }
-        .legend-name {
-          font-size: 0.88rem;
-          font-weight: 500;
-        }
-        .legend-count {
-          font-size: 0.75rem;
-          color: var(--secondary-text-color);
+        .legend-icon {
+          --mdc-icon-size: 16px;
         }
         .legend-right {
           display: flex;
           align-items: center;
           gap: 8px;
+          font-size: 0.85rem;
         }
         .legend-cost {
-          font-size: 0.95rem;
-          font-weight: 700;
+          font-weight: 600;
+          color: var(--primary-text-color);
         }
         .legend-pct {
           font-size: 0.75rem;
-          padding: 2px 6px;
-          border-radius: 10px;
-          background: var(--secondary-background-color, rgba(125, 125, 125, 0.1));
           color: var(--secondary-text-color);
           min-width: 38px;
-          text-align: center;
+          text-align: right;
         }
         .empty-chart {
           text-align: center;
@@ -1255,14 +1626,14 @@ class SubscriptionReportCard extends HTMLElement {
 
       <ha-card>
         <div class="header">
-          <div class="title">${this._config.title}</div>
+          <div class="title">${cardTitle}</div>
           <div style="display: flex; gap: 6px;">
             ${
               this._config.show_group_toggle
                 ? `
               <div class="toggle-group">
-                <div class="toggle-btn ${this._groupBy === 'category' ? 'active' : ''}" data-group="category">Kategorien</div>
-                <div class="toggle-btn ${this._groupBy === 'payment_method' ? 'active' : ''}" data-group="payment_method">Zahlung</div>
+                <div class="toggle-btn ${this._groupBy === 'category' ? 'active' : ''}" data-group="category">${t(lang, 'ui', 'category_group')}</div>
+                <div class="toggle-btn ${this._groupBy === 'payment_method' ? 'active' : ''}" data-group="payment_method">${t(lang, 'ui', 'payment_group')}</div>
               </div>
             `
                 : ''
@@ -1271,8 +1642,8 @@ class SubscriptionReportCard extends HTMLElement {
               this._config.show_period_toggle
                 ? `
               <div class="toggle-group">
-                <div class="toggle-btn ${this._period === 'monthly' ? 'active' : ''}" data-period="monthly">Monat</div>
-                <div class="toggle-btn ${this._period === 'yearly' ? 'active' : ''}" data-period="yearly">Jahr</div>
+                <div class="toggle-btn ${this._period === 'monthly' ? 'active' : ''}" data-period="monthly">${t(lang, 'ui', 'month')}</div>
+                <div class="toggle-btn ${this._period === 'yearly' ? 'active' : ''}" data-period="yearly">${t(lang, 'ui', 'year')}</div>
               </div>
             `
                 : ''
@@ -1284,8 +1655,8 @@ class SubscriptionReportCard extends HTMLElement {
           sortedGroups.length === 0
             ? `
           <div class="empty-chart">
-            Keine Daten zur Auswertung vorhanden.<br>
-            Erfasse Abonnements unter <i>Einstellungen -> Geräte & Dienste -> Subscription Manager</i>.
+            ${t(lang, 'ui', 'no_report_data')}<br>
+            ${t(lang, 'ui', 'empty_add')}
           </div>
         `
             : `
@@ -1303,45 +1674,42 @@ class SubscriptionReportCard extends HTMLElement {
                 .map(
                   (s) => `
                 <circle
+                  class="donut-slice ${s.isHovered ? 'hovered' : ''}"
                   cx="100"
                   cy="100"
                   r="${radius}"
                   fill="none"
                   stroke="${s.color}"
-                  stroke-width="${strokeWidth}"
+                  stroke-width="${s.isHovered ? strokeWidth + 4 : strokeWidth}"
                   stroke-dasharray="${s.strokeDash} ${s.strokeGap}"
                   stroke-dashoffset="${s.offset}"
-                  class="donut-slice ${s.isHovered ? 'hovered' : ''}"
                   data-key="${s.key}"
-                  style="opacity: ${this._hoveredKey && !s.isHovered ? 0.4 : 1};"
                 />
               `
                 )
                 .join('')}
             </svg>
-            <div class="center-text">
-              <span class="center-val">${centerValue}</span>
-              <span class="center-lbl">${centerLabel}</span>
+            <div class="donut-center">
+              <div class="center-value">${centerValue}</div>
+              <div class="center-label">${centerLabel}</div>
             </div>
           </div>
 
           ${
             this._config.show_legend
               ? `
-            <div class="legend-list">
+            <div class="legend">
               ${slices
                 .map(
                   (s) => `
                 <div class="legend-item ${s.isHovered ? 'hovered' : ''}" data-key="${s.key}">
                   <div class="legend-left">
-                    <span class="dot" style="background: ${s.color};"></span>
-                    <div>
-                      <span class="legend-name">${s.label}</span>
-                      <span class="legend-count">(${s.count} ${s.count === 1 ? 'Abo' : 'Abos'})</span>
-                    </div>
+                    <span class="legend-dot" style="background: ${s.color};"></span>
+                    <ha-icon icon="${s.icon}" class="legend-icon" style="color: ${s.color};"></ha-icon>
+                    <span>${s.label}</span>
                   </div>
                   <div class="legend-right">
-                    <span class="legend-cost">${formatCurrency(s.cost)}</span>
+                    <span class="legend-cost">${formatCurrency(s.cost, undefined, lang)}</span>
                     <span class="legend-pct">${s.pct}%</span>
                   </div>
                 </div>
@@ -1456,32 +1824,32 @@ class SubscriptionReportCardEditor extends HTMLElement {
       </style>
       <div class="card-config">
         <ha-textfield
-          label="Kartentitel"
-          .value="${this._config.title || 'Ausgaben-Report'}"
+          label="Kartentitel / Card Title"
+          .value="${this._config.title || ''}"
           config-value="title"
         ></ha-textfield>
         <ha-textfield
-          label="Kategorien filtern (optional, z. B. streaming, software)"
+          label="Kategorien filtern / Filter categories (optional, z. B. streaming, software)"
           .value="${catStr}"
           config-value="categories"
-          helper="Nur bestimmte Kategorien in das Diagramm einbeziehen."
+          helper="Nur bestimmte Kategorien einbeziehen / Include specific categories only."
         ></ha-textfield>
         <div class="config-row">
-          <span class="config-label">Monat/Jahr-Umschalter anzeigen</span>
+          <span class="config-label">Monat/Jahr-Umschalter / Show period toggle</span>
           <ha-switch
             .checked="${this._config.show_period_toggle !== false}"
             config-value="show_period_toggle"
           ></ha-switch>
         </div>
         <div class="config-row">
-          <span class="config-label">Kategorie/Zahlung-Umschalter anzeigen</span>
+          <span class="config-label">Kategorie/Zahlung-Umschalter / Show group toggle</span>
           <ha-switch
             .checked="${this._config.show_group_toggle !== false}"
             config-value="show_group_toggle"
           ></ha-switch>
         </div>
         <div class="config-row">
-          <span class="config-label">Legende unter dem Donut anzeigen</span>
+          <span class="config-label">Legende anzeigen / Show legend</span>
           <ha-switch
             .checked="${this._config.show_legend !== false}"
             config-value="show_legend"
@@ -1550,7 +1918,7 @@ if (!window.customCards.some((c) => c.type === 'subscription-manager-card')) {
   window.customCards.push({
     type: 'subscription-manager-card',
     name: 'Subscription Manager Card',
-    description: 'Übersichtskarte für Abonnements mit Sortierung nach Kündigungsfrist, Kosten, Fälligkeit und Kategorie-Filter.',
+    description: 'Subscription overview card with sorting, deadlines, expenses, and category filter.',
     preview: true,
   });
 }
@@ -1559,7 +1927,7 @@ if (!window.customCards.some((c) => c.type === 'subscription-report-card')) {
   window.customCards.push({
     type: 'subscription-report-card',
     name: 'Subscription Report Card',
-    description: 'Interaktiver Ausgaben-Report mit Donut-Diagramm nach Kategorien und Zahlungsmethoden.',
+    description: 'Interactive expense report with SVG donut chart by categories and payment methods.',
     preview: true,
   });
 }

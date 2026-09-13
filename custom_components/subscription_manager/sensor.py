@@ -24,6 +24,7 @@ from .const import (
     PAYMENT_CREDIT_CARD,
     PAYMENT_GOOGLE_PAY,
     PAYMENT_INVOICE,
+    PAYMENT_METHODS,
     PAYMENT_PAYPAL,
     PAYMENT_SEPA,
 )
@@ -226,6 +227,8 @@ class SubscriptionPaymentMethodSensor(SubscriptionBaseSensor):
     """Sensor for payment method."""
 
     _attr_translation_key = "payment_method"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = PAYMENT_METHODS
 
     def __init__(
         self, coordinator: SubscriptionHubCoordinator, entry: ConfigEntry, sub_id: str

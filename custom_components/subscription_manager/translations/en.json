@@ -119,7 +119,19 @@
       "days_until_renewal": { "name": "Days Until Renewal" },
       "cost": { "name": "Cost" },
       "monthly_cost": { "name": "Monthly Cost" },
-      "payment_method": { "name": "Payment Method" },
+      "payment_method": {
+        "name": "Payment Method",
+        "state": {
+          "paypal": "PayPal",
+          "credit_card": "Credit Card",
+          "sepa": "SEPA Direct Debit",
+          "apple_pay": "Apple Pay",
+          "google_pay": "Google Pay",
+          "bank_transfer": "Bank Transfer",
+          "invoice": "Invoice",
+          "other": "Other"
+        }
+      },
       "cancellation_deadline": { "name": "Cancellation Deadline" },
       "days_until_cancellation": { "name": "Days Until Cancellation" },
       "total_monthly_cost": { "name": "Total Monthly Cost" },

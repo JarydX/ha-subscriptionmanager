@@ -55,7 +55,7 @@
           "cost": "Kosten",
           "currency": "Währung",
           "billing_interval": "Abrechnungsintervall",
-          "start_date": "Startdatum / Abrechnungstag",
+          "start_date": "Startdatum / Nächste Abrechnung",
           "payment_method": "Zahlungsmethode",
           "category": "Kategorie",
           "alert_days": "Erinnerung (Tage vorher)",
@@ -83,7 +83,7 @@
       "options": {
         "weekly": "Wöchentlich",
         "monthly": "Monatlich",
-        "quarterly": "Vierteljährlich (Quartal)",
+        "quarterly": "Vierteljährlich",
         "half_yearly": "Halbjährlich",
         "yearly": "Jährlich"
       }
@@ -119,7 +119,19 @@
       "days_until_renewal": { "name": "Tage bis Abrechnung" },
       "cost": { "name": "Kosten" },
       "monthly_cost": { "name": "Monatliche Kosten" },
-      "payment_method": { "name": "Zahlungsmethode" },
+      "payment_method": {
+        "name": "Zahlungsmethode",
+        "state": {
+          "paypal": "PayPal",
+          "credit_card": "Kreditkarte",
+          "sepa": "SEPA-Lastschrift",
+          "apple_pay": "Apple Pay",
+          "google_pay": "Google Pay",
+          "bank_transfer": "Banküberweisung",
+          "invoice": "Rechnung",
+          "other": "Sonstige"
+        }
+      },
       "cancellation_deadline": { "name": "Kündigungsfrist-Stichtag" },
       "days_until_cancellation": { "name": "Tage bis Kündigungsfrist" },
       "total_monthly_cost": { "name": "Gesamtkosten monatlich" },
