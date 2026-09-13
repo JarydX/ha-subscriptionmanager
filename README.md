@@ -1,7 +1,7 @@
 # 💳 Home Assistant Subscription Manager
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/default)
-[![Validate Integration](https://github.com/JarydX/ha-subscriptionmanager/actions/workflows/validate.yaml/badge.svg)](https://github.com/JarydX/ha-subscriptionmanager/blob/98898b991b1fbedfb74c7fe4b235c84ac978051b/.github/workflows/main.yml)
+[![Validate](https://github.com/JarydX/ha-subscriptionmanager/actions/workflows/main.yml/badge.svg)](https://github.com/JarydX/ha-subscriptionmanager/actions/workflows/main.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Subscription Manager** ist eine modulare Custom Integration für [Home Assistant](https://www.home-assistant.io/), mit der du all deine regelmäßigen Abonnements, Mitgliedschaften und Verträge (Streaming, Software, Fitness, Versicherungen, Internet etc.) direkt in Home Assistant erfassen, überwachen und budgetieren kannst.
